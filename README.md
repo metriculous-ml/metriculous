@@ -40,9 +40,9 @@ Run `make help` to see all available commands.
 
 <!-- START makefile-doc -->
 ```
-$ make help
+$ make help 
 help                 Show this help message
 check                Run all static checks (like pre-commit hooks)
-test                 Run all tests
+test                 Run all tests 
 ```
 <!-- END makefile-doc -->
