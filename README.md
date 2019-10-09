@@ -42,6 +42,7 @@ Run `make help` to see all available commands.
 ```
 $ make help 
 help                 Show this help message
+bump                 Bump metriculous version
 check                Run all static checks (like pre-commit hooks)
 test                 Run all tests 
 ```
