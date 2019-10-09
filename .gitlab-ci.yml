@@ -48,7 +48,8 @@ unit-test:
 release:
   stage: deploy
   when: manual
-  only: master
+  only:
+    - tags
   script:
     - poetry install
     - poetry run reliesl release --pypi-release pypi
