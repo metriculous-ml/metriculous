@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "metriculous"
-version = "0.1.0"
+version = "0.2.0"
 description = "Very unstable library containing utilities to measure and visualize statistical properties of machine learning models."
-authors = ["Luminovo GmbH <pypi@luminovo.ai >"]
-maintainers = ["Marlon <marlon@luminovo.ai >", "Timon Ruban <timon@luminovo.ai>"]
+authors = ["Luminovo GmbH <pypi@luminovo.ai>"]
+maintainers = ["Marlon <marlon@luminovo.ai>", "Timon Ruban <truban93@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://gitlab.com/luminovo/public/metriculous"

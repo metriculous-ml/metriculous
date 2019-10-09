@@ -50,5 +50,5 @@ release:
   when: manual
   script:
     - poetry install
-    - poetry run reliesl release --pypi-release testpypi
+    - poetry run reliesl release --pypi-release pypi
 
