@@ -3,6 +3,7 @@ name = "metriculous"
 version = "0.1.0"
 description = "Very unstable library containing utilities to measure and visualize statistical properties of machine learning models."
 authors = ["Luminovo <pypi@luminovo.ai >"]
+maintainers = ["Marlon <marlon@luminovo.ai >", "Timon Ruban <timon@luminovo.ai>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://gitlab.com/luminovo/public/metriculous"
