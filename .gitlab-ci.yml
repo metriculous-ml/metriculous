@@ -49,7 +49,7 @@ release:
   stage: deploy
   when: manual
   only:
-    - tags
+    - master
   script:
     - poetry install
     - poetry run reliesl release --pypi-release pypi
