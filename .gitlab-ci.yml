@@ -45,7 +45,7 @@ unit-test:
   script:
     - make unit-test
 
-release:
+release-pypi:
   stage: deploy
   when: manual
   only:
