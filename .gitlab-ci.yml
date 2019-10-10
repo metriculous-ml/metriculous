@@ -8,8 +8,6 @@ variables:
 
 
 before_script:
-  - pwd
-  - ls -a
     # gitlab cannot pickup absolute path, hence use a local virtualenv
   - poetry config settings.virtualenvs.in-project true
 
@@ -17,6 +15,7 @@ stages:
   - check
   - build
   - test
+  - deploy
 
 check:
   stage: check
@@ -37,8 +36,6 @@ build-python:
     paths:
       - .venv/
   script:
-    - pwd
-    - ls -a
     - poetry install
 
 unit-test:
@@ -46,6 +43,14 @@ unit-test:
   dependencies:
   - build-python
   script:
-    - pwd
-    - ls -a
     - make unit-test
+
+release-pypi:
+  stage: deploy
+  when: manual
+  only:
+    - master
+  script:
+    - poetry install
+    - poetry run reliesl release --pypi-release pypi
+

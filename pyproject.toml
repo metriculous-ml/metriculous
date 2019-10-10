@@ -2,7 +2,17 @@
 name = "metriculous"
 version = "0.1.0"
 description = "Very unstable library containing utilities to measure and visualize statistical properties of machine learning models."
-authors = ["Marlon <marlon@luminovo.ai >"]
+authors = ["Luminovo GmbH <pypi@luminovo.ai>"]
+maintainers = ["Marlon <marlon@luminovo.ai>", "Timon Ruban <truban93@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://gitlab.com/luminovo/public/metriculous"
+repository = "https://gitlab.com/luminovo/public/metriculous"
+keywords = ["metriculous", "machine", "learning", "metrics"]
+classifiers = ["Development Status :: 3 - Alpha"]
+
+include = ["LICENSE"]
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -15,6 +25,7 @@ bokeh = "^1.1"
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
 jupyter = "^1.0"
+reliesl = "^0.1.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
