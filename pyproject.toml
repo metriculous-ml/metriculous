@@ -16,11 +16,11 @@ include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-numpy = "^1.16"
-scikit-learn = "^0.21.2"
-assertpy = "^0.14.0"
-pandas = "^0.25.0"
-bokeh = "^1.1"
+numpy = ">=1.16"
+scikit-learn = ">=0.21.2"
+assertpy = ">=0.14.0"
+pandas = ">=0.24.0"
+bokeh = ">=1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
