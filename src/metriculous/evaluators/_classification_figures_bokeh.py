@@ -81,7 +81,7 @@ def _bokeh_output_histogram(
         ],
         width=0.85,
         alpha=0.6,
-        legend="Prediction",
+        legend_label="Prediction",
     )
 
     # class distribution in ground truth
@@ -92,7 +92,7 @@ def _bokeh_output_histogram(
         ],
         width=0.85,
         alpha=0.6,
-        legend="Ground Truth",
+        legend_label="Ground Truth",
         fill_color=None,
         line_color="black",
         line_width=2.5,
@@ -540,7 +540,7 @@ def _bokeh_automation_rate_analysis(
         y="accuracy",
         line_width=2,
         source=source,
-        legend="Accuracy",
+        legend_label="Accuracy",
     )
 
     p.line(
@@ -549,7 +549,7 @@ def _bokeh_automation_rate_analysis(
         line_width=2,
         color="grey",
         source=source,
-        legend="Threshold",
+        legend_label="Threshold",
     )
 
     # make sure something is visible if lines consist of just a single point
