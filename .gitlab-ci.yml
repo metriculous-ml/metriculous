@@ -1,4 +1,4 @@
-image: jonatkinson/python-poetry:3.7
+image: luminovo/python:3.7-poetry1.0.2
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -9,7 +9,7 @@ variables:
 
 before_script:
     # gitlab cannot pickup absolute path, hence use a local virtualenv
-  - poetry config settings.virtualenvs.in-project true
+  - poetry config virtualenvs.in-project true
 
 stages:
   - check
@@ -53,4 +53,3 @@ release-pypi:
   script:
     - poetry install
     - poetry run reliesl release --pypi-release pypi
-
