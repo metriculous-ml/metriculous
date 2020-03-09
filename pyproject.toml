@@ -20,11 +20,12 @@ numpy = ">=1.16"
 scikit-learn = ">=0.21.2"
 assertpy = ">=0.14.0"
 pandas = ">=0.24.0"
-bokeh = ">=1.1"
+bokeh = "^1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
 jupyter = "^1.0"
+jupytext = "^1.0"
 reliesl = "^0.1.1"
 
 [build-system]

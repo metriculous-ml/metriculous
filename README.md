@@ -6,7 +6,8 @@
 Very unstable library containing utilities to measure and visualize statistical properties of machine learning models.
 
 ## Quickstart
-For examples and a general introduction please refer to [the quickstart notebook](./notebooks/quickstart.ipynb).
+For examples and a general introduction please refer to 
+[the quickstart notebook](notebooks/classification/quickstart.ipynb).
 
 ## Development
 

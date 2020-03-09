@@ -26,6 +26,7 @@ unit-test: clean
 	poetry run pytest src/
 
 test: unit-test ## Run all tests
+	poetry run pytest notebooks/
 
 
 
