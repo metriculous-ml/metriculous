@@ -9,7 +9,7 @@ package_data = {"": ["*"]}
 
 install_requires = [
     "assertpy>=0.14.0",
-    "bokeh>=1.1",
+    "bokeh>=1.1,<2.0",
     "numpy>=1.16",
     "pandas>=0.24.0",
     "scikit-learn>=0.21.2",
