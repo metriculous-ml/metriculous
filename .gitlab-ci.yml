@@ -43,7 +43,7 @@ unit-test:
   dependencies:
   - build-python
   script:
-    - make unit-test
+    - make test
 
 release-pypi:
   stage: deploy
