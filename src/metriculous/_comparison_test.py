@@ -24,9 +24,9 @@ def make_a_comparison(with_quantities: bool, with_figures: bool):
                 Quantity("Error", value=1.0 / (i + 1), higher_is_better=False),
                 Quantity("Mean", value=1.0 / (i + 1), higher_is_better=None),
             ],
-            figures=[]
+            lazy_figures=[]
             if not with_figures
-            else [make_a_bokeh_figure(), make_a_bokeh_figure()],
+            else [make_a_bokeh_figure, make_a_bokeh_figure],
         )
         for i in range(5)
     ]
@@ -40,6 +40,13 @@ class TestComparison:
         comparison = make_a_comparison(with_quantities, with_figures=with_figures)
         html_string = comparison.html()
         assert isinstance(html_string, str)
+        # Check that it can vbe called a second time
+        html_string_2 = comparison.html()
+        # HTML will not be exactly equal as bokeh and/or pandas generate
+        # different IDs each time
+        assert len(html_string) == len(html_string_2)
+        assert html_string[:100] == html_string_2[:100]
+        assert html_string[-100:] == html_string_2[-100:]
 
     @pytest.mark.parametrize("with_quantities", [True, False])
     @pytest.mark.parametrize("with_figures", [True, False])

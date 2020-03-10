@@ -86,6 +86,8 @@ def test_ClassificationEvaluator(
         ),
     )
 
+    evaluation.figures()
+
     assert isinstance(evaluation, Evaluation)
     assert evaluation.model_name == "MockModel"
 
@@ -281,8 +283,8 @@ def test_ClassificationEvaluator_filter_quantities(num_samples, quantity_filter)
 
     # assert all equal except quantities
     # (ignore figures as they do not support equality in the way we need it)
-    assert replace(evaluation_all, quantities=[], figures=[]) == replace(
-        evaluation_filtered, quantities=[], figures=[]
+    assert replace(evaluation_all, quantities=[], lazy_figures=[]) == replace(
+        evaluation_filtered, quantities=[], lazy_figures=[]
     )
 
     for quantity in evaluation_all.quantities:
@@ -334,12 +336,12 @@ def test_ClassificationEvaluator_filter_figures(
     )
 
     # assert all equal except figures
-    assert replace(evaluation_all, figures=[]) == replace(
-        evaluation_filtered, figures=[]
+    assert replace(evaluation_all, lazy_figures=[]) == replace(
+        evaluation_filtered, lazy_figures=[]
     )
 
     # check number of figures
-    assert len(evaluation_filtered.figures) == desired_number_of_figures
+    assert len(evaluation_filtered.lazy_figures) == desired_number_of_figures
 
 
 @pytest.mark.parametrize("num_samples", [100, 200])

@@ -1,7 +1,8 @@
-from typing import Callable
+from typing import Callable, List, Tuple
 from typing import Optional
 from typing import Sequence
 
+from bokeh.plotting import Figure
 import numpy as np
 from assertpy import assert_that
 from scipy.stats import entropy
@@ -204,7 +205,7 @@ class ClassificationEvaluator(Evaluator):
         ]
 
         # === Figures ==================================================================
-        figures = self._figures(
+        unfiltered_lazy_figures = self._lazy_figures(
             model_name,
             y_pred=y_pred,
             y_pred_one_hot=y_pred_one_hot,
@@ -217,12 +218,16 @@ class ClassificationEvaluator(Evaluator):
 
         return Evaluation(
             quantities=quantities,
-            figures=figures,
+            lazy_figures=[
+                function
+                for name, function in unfiltered_lazy_figures
+                if self.filter_figures(name)
+            ],
             model_name=model_name,
             primary_metric=self.primary_metric,
         )
 
-    def _figures(
+    def _lazy_figures(
         self,
         model_name: str,
         y_pred: np.ndarray,
@@ -232,119 +237,129 @@ class ClassificationEvaluator(Evaluator):
         y_true_one_hot: np.ndarray,
         y_true_proba: np.ndarray,
         maybe_sample_weights: Optional[np.ndarray],
-    ):
-        figures = []
+    ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
+        lazy_figures = []
 
         # --- Histogram of predicted and ground truth classes ---
         if maybe_sample_weights is None:
-            figure_name = "Class Distribution"
-            if self.filter_figures(figure_name):
-                figures.append(
-                    _bokeh_output_histogram(
+            lazy_figures.append(
+                (
+                    "Class Distribution",
+                    lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=self.class_names,
-                        title_rows=[model_name, figure_name],
+                        title_rows=[model_name, "Class Distribution"],
                         sample_weights=None,
                         x_label_rotation=self.class_label_rotation_x,
-                    )
+                    ),
                 )
+            )
         else:
-            figure_name = "Unweighted Class Distribution"
-            if self.filter_figures(figure_name):
-                figures.append(
-                    _bokeh_output_histogram(
+            lazy_figures.append(
+                (
+                    "Unweighted Class Distribution",
+                    lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=self.class_names,
-                        title_rows=[model_name, figure_name],
+                        title_rows=[model_name, "Unweighted Class Distribution"],
                         sample_weights=None,
                         x_label_rotation=self.class_label_rotation_x,
-                    )
+                    ),
                 )
+            )
 
-            figure_name = "Weighted Class Distribution"
-            if self.filter_figures(figure_name):
-                figures.append(
-                    _bokeh_output_histogram(
+            lazy_figures.append(
+                (
+                    "Weighted Class Distribution",
+                    lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=self.class_names,
-                        title_rows=[model_name, figure_name],
+                        title_rows=[model_name, "Weighted Class Distribution"],
                         sample_weights=maybe_sample_weights,
                         x_label_rotation=self.class_label_rotation_x,
-                    )
+                    ),
                 )
+            )
 
         # --- Confusion Scatter Plot ---
-        figure_name = "Confusion Scatter Plot"
-        if maybe_sample_weights is None and self.filter_figures(figure_name):
-            figures.append(
-                _bokeh_confusion_scatter(
-                    y_true=y_true,
-                    y_pred=y_pred,
-                    class_names=self.class_names,
-                    title_rows=[model_name, figure_name],
-                    x_label_rotation=self.class_label_rotation_x,
-                    y_label_rotation=self.class_label_rotation_y,
+        if maybe_sample_weights is None:
+            lazy_figures.append(
+                (
+                    "Confusion Scatter Plot",
+                    lambda: _bokeh_confusion_scatter(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                        class_names=self.class_names,
+                        title_rows=[model_name, "Confusion Scatter Plot"],
+                        x_label_rotation=self.class_label_rotation_x,
+                        y_label_rotation=self.class_label_rotation_y,
+                    ),
                 )
             )
 
         # --- Confusion Matrix ---
-        figure_name = "Confusion Matrix"
-        if maybe_sample_weights is None and self.filter_figures(figure_name):
-            figures.append(
-                _bokeh_confusion_matrix(
-                    y_true=y_true,
-                    y_pred=y_pred,
-                    class_names=self.class_names,
-                    title_rows=[model_name, figure_name],
-                    x_label_rotation=self.class_label_rotation_x,
-                    y_label_rotation=self.class_label_rotation_y,
+        if maybe_sample_weights is None:
+            lazy_figures.append(
+                (
+                    "Confusion Matrix",
+                    lambda: _bokeh_confusion_matrix(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                        class_names=self.class_names,
+                        title_rows=[model_name, "Confusion Matrix"],
+                        x_label_rotation=self.class_label_rotation_x,
+                        y_label_rotation=self.class_label_rotation_y,
+                    ),
                 )
             )
 
         # --- Automation Rate Analysis ---
-        figure_name = "Automation Rate Analysis"
-        if self.filter_figures(figure_name):
-            figures.append(
-                _bokeh_automation_rate_analysis(
+        lazy_figures.append(
+            (
+                "Automation Rate Analysis",
+                lambda: _bokeh_automation_rate_analysis(
                     y_target_one_hot=y_true_one_hot,
                     y_pred_proba=y_pred_proba,
-                    title_rows=[model_name, figure_name],
+                    title_rows=[model_name, "Automation Rate Analysis"],
                     sample_weights=maybe_sample_weights,
-                )
+                ),
             )
+        )
 
         # --- ROC curves ---
         if self.one_vs_all_figures:
             for class_index, class_name in enumerate(self.class_names):
-                figure_name = f"ROC {class_name} vs Rest"
-                if self.filter_figures(figure_name):
-                    figures.append(
-                        _bokeh_roc_curve(
+                lazy_figures.append(
+                    (
+                        f"ROC {class_name} vs Rest",
+                        lambda: _bokeh_roc_curve(
                             y_true_binary=(y_true == class_index),
                             y_pred_score=y_pred_proba[:, class_index],
-                            title_rows=[model_name, figure_name],
+                            title_rows=[model_name, f"ROC {class_name} vs Rest"],
                             sample_weights=maybe_sample_weights,
-                        )
+                        ),
                     )
+                )
 
         # --- PR curves ---
         if self.one_vs_all_figures:
             for class_index, class_name in enumerate(self.class_names):
-                figure_name = f"PR Curve {class_name} vs Rest"
-                if self.filter_figures(figure_name):
-                    figures.append(
-                        _bokeh_precision_recall_curve(
+                lazy_figures.append(
+                    (
+                        f"PR Curve {class_name} vs Rest",
+                        lambda: _bokeh_precision_recall_curve(
                             y_true_binary=(y_true == class_index),
                             y_pred_score=y_pred_proba[:, class_index],
-                            title_rows=[model_name, figure_name],
+                            title_rows=[model_name, f"PR Curve {class_name} vs Rest"],
                             sample_weights=maybe_sample_weights,
-                        )
+                        ),
                     )
+                )
 
-        return figures
+        return lazy_figures
 
     def _quantities(
         self,

@@ -5,7 +5,7 @@ Here we do not make any assumptions about the structure of ground truth and pred
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import replace
-from typing import Any, Sequence
+from typing import Any, Sequence, Callable
 from typing import List
 from typing import Optional
 from typing import Union
@@ -25,7 +25,7 @@ class Quantity:
 class Evaluation:
     model_name: str
     quantities: List[Quantity] = field(default_factory=list)
-    figures: List[Figure] = field(default_factory=list)
+    lazy_figures: List[Callable[[], Figure]] = field(default_factory=list)
     primary_metric: Optional[str] = None
 
     def get_by_name(self, quantity_name) -> Quantity:
@@ -40,6 +40,9 @@ class Evaluation:
         if self.primary_metric is None:
             return None
         return self.get_by_name(self.primary_metric)
+
+    def figures(self) -> Sequence[Figure]:
+        return [f() for f in self.lazy_figures]
 
     def filtered(
         self,

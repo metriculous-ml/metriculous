@@ -295,9 +295,9 @@ def _html_comparison_table(
 
     # show rows of figures
     rows = []
-    for i_figure, _ in enumerate(model_evaluations[0].figures):
+    for i_figure, _ in enumerate(model_evaluations[0].lazy_figures):
         row_of_figures = [
-            evaluation.figures[i_figure]
+            evaluation.lazy_figures[i_figure]()
             for i_model, evaluation in enumerate(model_evaluations)
         ]
         if include_spacer:

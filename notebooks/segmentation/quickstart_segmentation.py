@@ -29,7 +29,8 @@ np.random.seed(42)
 # %% [markdown]
 # # `SegmentationEvaluator`
 #
-# For this usage example we will use randomly generated images and masks and generate comparisons between three models
+# For this usage example we will use randomly generated images and masks and generate comparisons
+# between three models
 
 # %% [markdown]
 # #### Define dataset properties
@@ -42,7 +43,8 @@ class_names = ["dog", "tree", "cat"]
 # %% [markdown]
 # #### Generate ground truth data
 #
-# We assume that the labels are from `0` to `num_classes - 1` and they are in the order as mentioned in the `class_names` list. For illustration, in this example, the labelling will be as follows
+# We assume that the labels are from `0` to `num_classes - 1` and they are in the order as mentioned
+# in the `class_names` list. For illustration, in this example, the labelling will be as follows
 #
 # | Label  |  Class |
 # |---|---|
@@ -57,7 +59,9 @@ ground_truth.shape
 # %% [markdown]
 # #### Generate model predictions
 #
-# For the purpose of this demonstration, we will generate the predictions of the three models randomly, however in a real use case, the predictions will come from the models that you want to compare and will have the **same** shape as `ground_truth`
+# For the purpose of this demonstration, we will generate the predictions of the three models
+# randomly, however in a real use case, the predictions will come from the models that you want to
+# compare and will have the **same** shape as `ground_truth`
 
 # %%
 num_models = 3
@@ -88,5 +92,3 @@ metriculous.Comparator(
     model_predictions=[model["predictions"] for model in models],
     model_names=[model["name"] for model in models],
 ).display()
-
-# %%

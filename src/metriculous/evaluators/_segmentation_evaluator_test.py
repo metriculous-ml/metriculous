@@ -53,6 +53,8 @@ def test_SegmentationEvaluator_perfect_prediction(classes: List[str]):
         ground_truth=mask, model_prediction=predictions, model_name="MockModel"
     )
 
+    evaluation.figures()
+
     expected_quantities = []
 
     for class_name in classes:
@@ -217,8 +219,8 @@ def test_SegmentationEvaluator_filter_quantities(
         ground_truth=mask, model_prediction=predictions, model_name="MockModel"
     )
 
-    assert replace(evaluation_all, quantities=[], figures=[]) == replace(
-        evaluation_filtered, quantities=[], figures=[]
+    assert replace(evaluation_all, quantities=[], lazy_figures=[]) == replace(
+        evaluation_filtered, quantities=[], lazy_figures=[]
     )
 
     for quantity in evaluation_all.quantities:
@@ -264,8 +266,8 @@ def test_SegmentationEvaluator_filter_figures(
         ground_truth=mask, model_prediction=predictions, model_name="MockModel"
     )
 
-    assert replace(evaluation_all, figures=[]) == replace(
-        evaluation_filtered, figures=[]
+    assert replace(evaluation_all, lazy_figures=[]) == replace(
+        evaluation_filtered, lazy_figures=[]
     )
 
-    assert len(evaluation_filtered.figures) == desired_number_of_figures
+    assert len(evaluation_filtered.lazy_figures) == desired_number_of_figures

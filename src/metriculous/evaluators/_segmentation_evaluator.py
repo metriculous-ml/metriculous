@@ -1,8 +1,9 @@
-from typing import Callable
+from typing import Callable, List, Tuple
+from typing import Iterable
 from typing import Optional
 from typing import Sequence
-from typing import Iterable
 
+from bokeh.plotting import Figure
 import numpy as np
 from sklearn import metrics as sklmetrics
 
@@ -157,46 +158,56 @@ class SegmentationEvaluator(Evaluator):
             if self.filter_quantities(q.name)
         ]
 
-        figures = self._figures(model_name, model_prediction, ground_truth)
+        unfiltered_lazy_figures = self._lazy_figures(
+            model_name, model_prediction, ground_truth
+        )
 
         return Evaluation(
             quantities=quantities,
-            figures=figures,
+            lazy_figures=[
+                function
+                for name, function in unfiltered_lazy_figures
+                if self.filter_figures(name)
+            ],
             model_name=model_name,
             primary_metric=self.primary_metric,
         )
 
-    def _figures(self, model_name: str, y_pred: np.ndarray, y_true: np.ndarray):
+    def _lazy_figures(
+        self, model_name: str, y_pred: np.ndarray, y_true: np.ndarray
+    ) -> List[Tuple[str, Callable[[], Figure]]]:
 
-        figures = []
+        lazy_figures = []
 
-        figure_name = "Class Distribution"
-        if self.filter_figures(figure_name):
+        class_distribution_figure_name = "Class Distribution"
 
+        def class_distribution_figure() -> Figure:
             figure = _bokeh_output_histogram(
                 y_true=y_true,
                 y_pred=y_pred,
                 class_names=self.class_names,
-                title_rows=[model_name, figure_name],
+                title_rows=[model_name, class_distribution_figure_name],
                 sample_weights=None,
             )
             figure.yaxis.axis_label = "Number of Pixels"
+            return figure
 
-            figures.append(figure)
+        lazy_figures.append((class_distribution_figure_name, class_distribution_figure))
 
         for class_label, class_name in enumerate(self.class_names):
-            figure_name = f"Heatmap for {class_name}"
-            if self.filter_figures(figure_name):
-                figure = _bokeh_heatmap(
-                    y_true=y_true,
-                    y_pred=y_pred,
-                    class_label=class_label,
-                    class_name=class_name,
+            lazy_figures.append(
+                (
+                    f"Heatmap for {class_name}",
+                    lambda: _bokeh_heatmap(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                        class_label=class_label,
+                        class_name=class_name,
+                    ),
                 )
+            )
 
-                figures.append(figure)
-
-        return figures
+        return lazy_figures
 
     def _quantities(self, y_pred: np.ndarray, y_true: np.ndarray):
 

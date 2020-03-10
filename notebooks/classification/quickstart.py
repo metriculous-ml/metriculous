@@ -73,7 +73,7 @@ models = [
         LogisticRegression(multi_class="auto", solver="lbfgs", random_state=42),
     ),
     ("DecisionTree", DecisionTreeClassifier(random_state=42)),
-    ("Dummy", DummyClassifier(random_state=42)),
+    ("Dummy", DummyClassifier(strategy="stratified", random_state=42)),
     ("RandomForest", RandomForestClassifier(n_estimators=100, random_state=42)),
 ]
 
@@ -146,7 +146,8 @@ q3
 # %% [markdown]
 # ### `Evaluation`
 #
-# An `Evaluation` consists of a model name, a list of `Quantity`s, and a list of [Bokeh](https://bokeh.pydata.org/en/latest/) figures.
+# An `Evaluation` consists of a model name, a list of `Quantity`s, and a list of callables that
+# generate [Bokeh](https://bokeh.pydata.org/en/latest/) figures.
 # Optionally, you can specify a primary metric by passing the name of one of the quanitities.
 # This is to indicate which quantity should be used for model selection.
 
@@ -163,7 +164,7 @@ def make_figure(title):
 evaluation = metriculous.Evaluation(
     model_name="MyModel",
     quantities=[q1, q2, q3],
-    figures=[make_figure("Interesting Chart for MyModel")],
+    lazy_figures=[lambda: make_figure("Interesting Chart for MyModel")],
     primary_metric="Accuracy",
 )
 
@@ -207,7 +208,7 @@ evaluation_2 = metriculous.Evaluation(
         replace(q2, value=0.31),
         replace(q3, value=0.13),
     ],
-    figures=[make_figure("Interesting Chart for MyModel_2")],
+    lazy_figures=[lambda: make_figure("Interesting Chart for MyModel_2")],
     primary_metric="Accuracy",
 )
 
