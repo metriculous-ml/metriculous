@@ -304,11 +304,12 @@ def _html_comparison_table(
             row_of_figures = [Spacer()] + row_of_figures
         rows.append(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"),)
 
-    html_output += file_html(
-        models=column(rows, sizing_mode="scale_width"),
-        resources=CDN,
-        title="Comparison",
-    )
+    if rows:
+        html_output += file_html(
+            models=column(rows, sizing_mode="scale_width"),
+            resources=CDN,
+            title="Comparison",
+        )
 
     return html_output
 
