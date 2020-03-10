@@ -45,7 +45,8 @@ class Comparison:
 
         # noinspection PyBroadException
         try:
-            os.system('say "Model comparison is ready."')
+            # Play a sound to indicate that results are ready
+            os.system("afplay /System/Library/Sounds/Tink.aiff")
         except Exception:
             pass
 
