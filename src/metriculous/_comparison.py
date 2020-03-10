@@ -8,7 +8,9 @@ from typing import Sequence
 from IPython.display import HTML
 from IPython.display import display
 from assertpy import assert_that
+from bokeh import plotting
 from bokeh.embed import file_html
+from bokeh.io import output_notebook
 import bokeh.layouts
 from bokeh.layouts import column
 from bokeh.models import Spacer
@@ -28,8 +30,18 @@ class Comparison:
         _check_consistency(self.evaluations)
 
     def display(self, include_spacer=False):
+        """Displays a table with quantities and figures in a Jupyter notebook."""
         # noinspection PyTypeChecker
-        display(HTML(_html_comparison_table(self.evaluations, include_spacer)))
+
+        display(HTML(_html_quantity_comparison_table(self.evaluations)))
+        output_notebook()
+
+        for sequence_of_figures in _figure_rows(
+            self.evaluations, include_spacer=include_spacer
+        ):
+            plotting.show(
+                bokeh.layouts.row(sequence_of_figures, sizing_mode="scale_width")
+            )
 
         # noinspection PyBroadException
         try:
@@ -58,7 +70,12 @@ class Comparison:
             tr:hover {background-color:#f5f5f5;}
         </style>
         """
-        return css + _html_comparison_table(self.evaluations, include_spacer)
+        return (
+            css
+            + _html_quantity_comparison_table(self.evaluations)
+            + "<br><br>"
+            + _html_figure_table(self.evaluations, include_spacer)
+        )
 
     def save_html(self, file_path: Union[str, Path], include_spacer=False):
         file_path = Path(file_path)
@@ -201,9 +218,7 @@ def _highlight_min(data):
         )
 
 
-def _html_comparison_table(
-    model_evaluations: List[Evaluation], include_spacer: bool
-) -> str:
+def _html_quantity_comparison_table(model_evaluations: List[Evaluation]) -> str:
     _check_consistency(model_evaluations)
     primary_metric = model_evaluations[0].primary_metric
     n_models = len(model_evaluations)
@@ -289,20 +304,15 @@ def _html_comparison_table(
             </style>
             """
 
-    html_output += "<br><br>"
+    return html_output
 
-    # TODO check figure consistency
+
+def _html_figure_table(model_evaluations: List[Evaluation], include_spacer: bool):
+
+    html_output = ""
 
     # show rows of figures
-    rows = []
-    for i_figure, _ in enumerate(model_evaluations[0].lazy_figures):
-        row_of_figures = [
-            evaluation.lazy_figures[i_figure]()
-            for i_model, evaluation in enumerate(model_evaluations)
-        ]
-        if include_spacer:
-            row_of_figures = [Spacer()] + row_of_figures
-        rows.append(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"),)
+    rows = _figure_rows(model_evaluations, include_spacer)
 
     if rows:
         html_output += file_html(
@@ -312,6 +322,20 @@ def _html_comparison_table(
         )
 
     return html_output
+
+
+def _figure_rows(model_evaluations: Sequence[Evaluation], include_spacer: bool):
+    # TODO check figure consistency
+    rows = []
+    for i_figure, _ in enumerate(model_evaluations[0].lazy_figures):
+        row_of_figures = [
+            evaluation.lazy_figures[i_figure]()
+            for i_model, evaluation in enumerate(model_evaluations)
+        ]
+        if include_spacer:
+            row_of_figures = [Spacer()] + row_of_figures
+        rows.append(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"),)
+    return rows
 
 
 def _format_numbers(entry):

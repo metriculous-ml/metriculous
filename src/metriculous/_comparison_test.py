@@ -63,3 +63,12 @@ class TestComparison:
         for evaluation in comparison.evaluations:
             for q in evaluation.quantities:
                 assert q.name in html_in_file
+
+    def test_display_then_html_then_save_html_smoke_test(self):
+        """ Checks that subsequent calls do not interfere with each other. """
+        comparison = make_a_comparison(with_quantities=True, with_figures=True)
+        comparison.display()
+        comparison.html()
+        path = Path("test_output.html")
+        comparison.save_html(path)
+        path.unlink()
