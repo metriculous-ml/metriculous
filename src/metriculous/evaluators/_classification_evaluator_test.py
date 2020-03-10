@@ -344,7 +344,7 @@ def test_ClassificationEvaluator_filter_figures(
 
 @pytest.mark.parametrize("num_samples", [100, 200])
 def test_ClassificationEvaluator_exception_when_passing_distribution_and_weights(
-    num_samples: int
+    num_samples: int,
 ):
     """
     Checks that an exception is raised when `sample_weights` are passed to an evaluator

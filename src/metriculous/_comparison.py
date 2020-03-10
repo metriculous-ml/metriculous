@@ -1,18 +1,20 @@
-import os
 from dataclasses import dataclass
-from typing import Any, Optional
+import os
+from pathlib import Path
+from typing import Any, Optional, Union
 from typing import List
 from typing import Sequence
 
+from IPython.display import HTML
+from IPython.display import display
+from assertpy import assert_that
+from bokeh.embed import file_html
 import bokeh.layouts
+from bokeh.layouts import column
+from bokeh.models import Spacer
+from bokeh.resources import CDN
 import numpy as np
 import pandas as pd
-from assertpy import assert_that
-from bokeh import plotting
-from bokeh.models import Spacer
-from IPython.display import display
-from IPython.display import HTML
-from IPython.display import Markdown
 
 from metriculous._evaluation import Evaluation
 from metriculous._evaluation import Evaluator
@@ -26,13 +28,45 @@ class Comparison:
         _check_consistency(self.evaluations)
 
     def display(self, include_spacer=False):
-        _display_comparison_table(self.evaluations, include_spacer)
+        # noinspection PyTypeChecker
+        display(HTML(_html_comparison_table(self.evaluations, include_spacer)))
 
         # noinspection PyBroadException
         try:
             os.system('say "Model comparison is ready."')
         except Exception:
             pass
+
+    def html(self, include_spacer=False) -> str:
+        css = """
+        <style>
+            html {
+              font-family: Verdana;
+            }  
+            table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+            
+            th, td {
+              font-size: 0.8em;
+              padding: 8px;
+              text-align: right;
+              border-bottom: 1px solid #ddd;
+            }
+            
+            tr:hover {background-color:#f5f5f5;}
+        </style>
+        """
+        return css + _html_comparison_table(self.evaluations, include_spacer)
+
+    def save_html(self, file_path: Union[str, Path], include_spacer=False):
+        file_path = Path(file_path)
+        if file_path.exists():
+            raise FileExistsError(f"Path exists, refusing to overwrite '{file_path}'")
+        html_string = self.html(include_spacer)
+        with file_path.open(mode="w"):
+            file_path.write_text(html_string)
 
 
 class Comparator:
@@ -94,7 +128,7 @@ def _get_and_supplement_model_names(model_evaluations: List[Evaluation]):
 
 
 def _model_evaluations_to_data_frame(
-    model_evaluations: List[Evaluation]
+    model_evaluations: List[Evaluation],
 ) -> pd.DataFrame:
     quantity_names = [q.name for q in model_evaluations[0].quantities]
 
@@ -167,9 +201,9 @@ def _highlight_min(data):
         )
 
 
-def _display_comparison_table(
+def _html_comparison_table(
     model_evaluations: List[Evaluation], include_spacer: bool
-):
+) -> str:
     _check_consistency(model_evaluations)
     primary_metric = model_evaluations[0].primary_metric
     n_models = len(model_evaluations)
@@ -212,43 +246,39 @@ def _display_comparison_table(
                 np.where(good_things, "", ""), index=data.index, columns=data.columns
             )
 
-    def display_stylish_table(df: pd.DataFrame, highlight_fn=None):
+    def stylish_table_html(df: pd.DataFrame, highlight_fn=None) -> str:
         df_styled = df.style.set_properties(width="400px").format(_format_numbers)
         df_styled = df_styled.apply(highlight_primary_metric, axis=1)
         if highlight_fn is None:
-            display(df_styled)
+            return df_styled.render()
         else:
-            display(df_styled.apply(highlight_fn, axis=1, subset=df.columns[1:]))
+            return df_styled.apply(highlight_fn, axis=1, subset=df.columns[1:]).render()
+
+    html_output = ""
 
     # increase usable Jupyter notebook width when comparing many models
     if n_models > 3:
-        # noinspection PyTypeChecker
-        display(HTML("<style>.container { width:90% !important; }</style>"))
+        html_output += "<style>.container { width:90% !important; }</style>"
 
     if len(scores_data_frame):
-        # noinspection PyTypeChecker
-        display(Markdown("## Scores (higher is better)"))
-        display_stylish_table(
+        html_output += "<h2>Scores (higher is better)</h2>"
+        html_output += stylish_table_html(
             scores_data_frame, _highlight_max if n_models > 1 else None
         )
 
     if len(losses_data_frame):
-        # noinspection PyTypeChecker
-        display(Markdown("## Losses (lower is better)"))
-        display_stylish_table(
+        html_output += "<h2>Losses (lower is better)</h2>"
+        html_output += stylish_table_html(
             losses_data_frame, _highlight_min if n_models > 1 else None
         )
 
     if len(neutral_data_frame):
-        # noinspection PyTypeChecker
-        display(Markdown("## Other Quantities"))
-        display_stylish_table(neutral_data_frame)
+        html_output += "<h2>Other Quantities</h2>"
+        html_output += stylish_table_html(neutral_data_frame)
 
     # hide DataFrame indices
     # noinspection PyTypeChecker
-    display(
-        HTML(
-            """
+    html_output += """
             <style>
             .row_heading {
                 display: none;
@@ -258,22 +288,29 @@ def _display_comparison_table(
             }
             </style>
             """
-        )
-    )
+
+    html_output += "<br><br>"
 
     # TODO check figure consistency
 
-    # tell bokeh to output to notebook
-    plotting.output_notebook()
     # show rows of figures
-    for i_showable, _ in enumerate(model_evaluations[0].figures):
+    rows = []
+    for i_figure, _ in enumerate(model_evaluations[0].figures):
         row_of_figures = [
-            evaluation.figures[i_showable]
+            evaluation.figures[i_figure]
             for i_model, evaluation in enumerate(model_evaluations)
         ]
         if include_spacer:
             row_of_figures = [Spacer()] + row_of_figures
-        plotting.show(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"))
+        rows.append(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"),)
+
+    html_output += file_html(
+        models=column(rows, sizing_mode="scale_width"),
+        resources=CDN,
+        title="Comparison",
+    )
+
+    return html_output
 
 
 def _format_numbers(entry):
