@@ -24,8 +24,8 @@ class Quantity:
 @dataclass(frozen=True)
 class Evaluation:
     model_name: str
-    quantities: List[Quantity] = field(default_factory=list)
-    lazy_figures: List[Callable[[], Figure]] = field(default_factory=list)
+    quantities: Sequence[Quantity] = field(default_factory=list)
+    lazy_figures: Sequence[Callable[[], Figure]] = field(default_factory=list)
     primary_metric: Optional[str] = None
 
     def get_by_name(self, quantity_name) -> Quantity:
