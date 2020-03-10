@@ -82,7 +82,7 @@ for name, model in models:
 
 # %% [markdown]
 # #### Compare models
-# `metriculous` provides a `Comparator` class that serves to evaluate a sequence of prediction objects against a known ground truth, and to compare them. A `Comparator` need to be initialized with an `Evaluator` object that computes the actual performance metrics and creates charts for each of the prediction objects. A default `Evaluator` implementation named `ClassificationEvaluator` is included in `metriculous` and it aims to satisfy the most common requirements for classification problems.
+# `metriculous` provides a `Comparator` class that serves to evaluate a sequence of prediction objects against a known ground truth, and to compare them. A `Comparator` needs to be initialized with an `Evaluator` object that computes the actual performance metrics and creates charts for each of the prediction objects. A default `Evaluator` implementation named `ClassificationEvaluator` is included in `metriculous` and it aims to satisfy the most common requirements for classification problems.
 #
 # Let's use the two components to evaluate and compare our Iris classifiers:
 
