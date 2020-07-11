@@ -2,49 +2,66 @@
 <a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-# Metriculous
-Very unstable library containing utilities to measure and visualize statistical properties of machine learning models.
+# __`metriculous`__
+Unstable python library with utilities to measure, visualize and compare statistical properties of machine learning models. Breaking improvements to be expected.
 
-## Quickstart
-For examples and a general introduction please refer to 
-[the quickstart notebook](notebooks/classification/quickstart.ipynb).
 
-## Development
+# Installation
+```console
+$ pip install metriculous
+```
 
-### Pre-commit
-Please make sure to have the pre-commit hooks installed.
-Install [pre-commit](https://pre-commit.com/) and then run `pre-commit install` to register the hooks with git.
+Or, for the latest unreleased version:
+```console
+$ pip install git+https://github.com/metriculous-ml/metriculous.git
+```
+
+Or, to avoid getting surprised by breaking changes:
+```console
+$ pip install git+https://github.com/metriculous-ml/metriculous.git@YourFavoriteCommit
+```
+
+
+# Usage
+
+### Comparing Regression Models
+
+```python
+import numpy as np
+
+# Mock the ground truth, a one-dimensional array of floats
+ground_truth = np.random.random(300)
+
+# Mock the output of a few models
+perfect_model = ground_truth
+noisy_model = ground_truth + 0.1 * np.random.randn(*ground_truth.shape)
+random_model = np.random.randn(*ground_truth.shape)
+zero_model = np.zeros_like(ground_truth)
+
+import metriculous
+
+metriculous.compare_regressors(
+    ground_truth=ground_truth,
+    model_predictions=[perfect_model, noisy_model, random_model, zero_model],
+    model_names=["Perfect Model", "Noisy Model", "Random Model", "Zero Model"],
+).save_html("comparison.html").display()
+```
+
+This will save an HTML file with common regression metrics and charts, and if you are working in a [Jupyter notebook](https://github.com/jupyter/notebook) will display the output right in front of you:
+
+
+![Screenshot of Metriculous Regression Metrics](./imgs/metriculous_regression_screen_shot_table.png)
+![Screenshot of Metriculous Regression Figures](./imgs/metriculous_regression_screen_shot_figures.png)
+
+### Comparing Classification Models
+For an example that evaluates and compares classifiers please refer to the [quickstart notebook for classification](notebooks/classification/quickstart.ipynb).
+
+
+# Development
 
 ### Poetry
 This project uses [poetry](https://poetry.eustace.io/) to manage
-dependencies. Please make sure it is installed for the required python
-version. Then install the dependencies with:
-
-```
-poetry install
-```
-
-To activate the virtual environment created by `poetry`, run
-
-```
-poetry shell
-```
-
-or execute individual commands with `poetry run`, e.g.
-
-```
-poetry run jupyter notebook
-```
+dependencies. Please make sure it is installed for the required python version. Then install the dependencies with `poetry install`.
 
 ### Makefile
-Run `make help` to see all available commands.
-
-<!-- START makefile-doc -->
-```
-$ make help 
-help                 Show this help message
-bump                 Bump metriculous version
-check                Run all static checks (like pre-commit hooks)
-test                 Run all tests 
-```
-<!-- END makefile-doc -->
+A Makefile is used to automate common development workflows. Type `make` or `make help` to see a list of available commands. Before commiting changes it is recommended to run `make format check test`.

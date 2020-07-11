@@ -1,28 +1,32 @@
-from typing import Callable, List, Tuple
-from typing import Optional
-from typing import Sequence
+from typing import Callable, Optional, Sequence, Tuple, Union
 
-from bokeh.plotting import Figure
 import numpy as np
+import numpy.testing as npt
 from assertpy import assert_that
+from bokeh.plotting import Figure
 from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
-from ._classification_utils import check_normalization
-from .._evaluation import Evaluation
-from .._evaluation import Evaluator
-from .._evaluation import Quantity
-from ..evaluators._classification_figures_bokeh import _bokeh_automation_rate_analysis
-from ..evaluators._classification_figures_bokeh import _bokeh_confusion_matrix
-from ..evaluators._classification_figures_bokeh import _bokeh_confusion_scatter
-from ..evaluators._classification_figures_bokeh import _bokeh_output_histogram
-from ..evaluators._classification_figures_bokeh import _bokeh_precision_recall_curve
-from ..evaluators._classification_figures_bokeh import _bokeh_roc_curve
+from .._evaluation import Evaluation, Evaluator, Quantity
+from ..evaluators._classification_figures_bokeh import (
+    _bokeh_automation_rate_analysis,
+    _bokeh_confusion_matrix,
+    _bokeh_confusion_scatter,
+    _bokeh_output_histogram,
+    _bokeh_precision_recall_curve,
+    _bokeh_roc_curve,
+)
 from ..metrics import top_n_accuracy
 from ..utilities import sample_weights_simulating_class_distribution
+from ._classification_utils import (
+    ClassificationData,
+    Integers,
+    ProbabilityMatrix,
+    check_normalization,
+)
 
 
-class ClassificationEvaluator(Evaluator):
+class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
     """
     Default Evaluator implementation that serves well for most classification problems.
 
@@ -31,16 +35,16 @@ class ClassificationEvaluator(Evaluator):
     def __init__(
         self,
         class_names: Optional[Sequence[str]] = None,
-        one_vs_all_quantities=True,
-        one_vs_all_figures=False,
+        one_vs_all_quantities: bool = True,
+        one_vs_all_figures: bool = False,
         top_n_accuracies: Sequence[int] = (),
         filter_quantities: Optional[Callable[[str], bool]] = None,
         filter_figures: Optional[Callable[[str], bool]] = None,
         primary_metric: Optional[str] = None,
         simulated_class_distribution: Optional[Sequence[float]] = None,
-        class_label_rotation_x="horizontal",
-        class_label_rotation_y="vertical",
-    ):
+        class_label_rotation_x: Union[str, float] = "horizontal",
+        class_label_rotation_y: Union[str, float] = "vertical",
+    ) -> None:
         """
         Initializes the evaluator with the option to overwrite the default settings.
 
@@ -95,9 +99,7 @@ class ClassificationEvaluator(Evaluator):
 
         if simulated_class_distribution is not None:
             check_normalization(simulated_class_distribution, axis=0)
-            np.testing.assert_equal(
-                np.asarray(simulated_class_distribution) > 0.0, True
-            )
+            npt.assert_equal(np.asarray(simulated_class_distribution) > 0.0, True)
 
         self.simulated_class_distribution = simulated_class_distribution
 
@@ -116,11 +118,10 @@ class ClassificationEvaluator(Evaluator):
         classification problems.
 
         Args:
-            model_prediction:
-                Sequence of 2d arrays where each array corresponds to a model
-                and each row is a probability distribution.
             ground_truth:
-                2d array with each row being a probability distribution.
+                2d array where each row is a probability distribution.
+            model_prediction:
+                2d array where each row is a probability distribution.
             model_name:
                 Name of the model that is being evaluated.
             sample_weights:
@@ -135,56 +136,28 @@ class ClassificationEvaluator(Evaluator):
 
         # === Preparations =============================================================
         # give variables more specific names
-        y_pred_proba = model_prediction
-        y_true_proba = ground_truth
-        # and delete interface parameter names to avoid confusion
-        del model_prediction
-        del ground_truth
+        data = ClassificationData(
+            target=ProbabilityMatrix(ground_truth),
+            pred=ProbabilityMatrix(model_prediction),
+        )
 
-        n_classes = y_true_proba.shape[1]
+        class_names: Sequence[
+            str
+        ] = self.class_names if self.class_names is not None else [
+            "class_{}".format(i) for i in range(data.n_classes)
+        ]
+        assert len(class_names) == data.n_classes
 
-        if self.class_names is None:
-            self.class_names = ["class_{}".format(i) for i in range(n_classes)]
-        assert len(self.class_names) == y_true_proba.shape[1]
-
-        # check shapes
-        assert np.ndim(y_true_proba) == 2
-        assert (
-            y_true_proba.shape == y_pred_proba.shape
-        ), f"{y_true_proba.shape} != {y_pred_proba.shape}"
-
-        # check normalization
-        check_normalization(y_true_proba, axis=1)
-        check_normalization(y_pred_proba, axis=1)
-        np.testing.assert_equal(y_true_proba >= 0.0, True)
-        np.testing.assert_equal(y_pred_proba >= 0.0, True)
-
-        # compute non-probabilistic class decisions
-        y_true = np.argmax(y_true_proba, axis=1)
-        y_pred = np.argmax(y_pred_proba, axis=1)
-
-        # make one-hot arrays, which are required for some sklearn metrics
-        y_true_one_hot: np.ndarray = np.eye(n_classes)[y_true]
-        y_pred_one_hot: np.ndarray = np.eye(n_classes)[y_pred]
-
-        # process sample_weights parameter and self.simulated_class_distribution
-        if sample_weights is not None:
-            assert self.simulated_class_distribution is None, (
-                "Cannot use `sample_weights` with ClassificationEvaluator that was "
-                "initialized with `simulated_class_distribution`."
-            )
-            sample_weights = np.asarray(sample_weights)
-            assert_that(sample_weights.ndim).is_equal_to(1)
-            assert_that(sample_weights.shape).is_equal_to((len(y_pred),))
-            np.testing.assert_array_equal(sample_weights >= 0.0, True)
-        elif self.simulated_class_distribution is not None:
+        if self.simulated_class_distribution is not None:
             assert_that(np.shape(self.simulated_class_distribution)).is_equal_to(
-                (n_classes,)
+                (data.n_classes,)
             )
-            sample_weights = sample_weights_simulating_class_distribution(
-                y_true=y_true,
-                hypothetical_class_distribution=self.simulated_class_distribution,
-            )
+
+        sample_weights = _sample_weights(
+            sample_weights,
+            self.simulated_class_distribution,
+            y_true=data.target.argmaxes,
+        )
 
         # === Quantities ===============================================================
         # Note: Optimization potential here for problems with many classes.
@@ -193,13 +166,7 @@ class ClassificationEvaluator(Evaluator):
         quantities = [
             q
             for q in self._quantities(
-                y_pred,
-                y_pred_one_hot,
-                y_pred_proba,
-                y_true,
-                y_true_one_hot,
-                y_true_proba,
-                maybe_sample_weights=sample_weights,
+                data, maybe_sample_weights=sample_weights, class_names=class_names
             )
             if self.filter_quantities(q.name)
         ]
@@ -207,13 +174,9 @@ class ClassificationEvaluator(Evaluator):
         # === Figures ==================================================================
         unfiltered_lazy_figures = self._lazy_figures(
             model_name,
-            y_pred=y_pred,
-            y_pred_one_hot=y_pred_one_hot,
-            y_pred_proba=y_pred_proba,
-            y_true=y_true,
-            y_true_one_hot=y_true_one_hot,
-            y_true_proba=y_true_proba,
+            data=data,
             maybe_sample_weights=sample_weights,
+            class_names=class_names,
         )
 
         return Evaluation(
@@ -230,15 +193,17 @@ class ClassificationEvaluator(Evaluator):
     def _lazy_figures(
         self,
         model_name: str,
-        y_pred: np.ndarray,
-        y_pred_one_hot: np.ndarray,
-        y_pred_proba: np.ndarray,
-        y_true: np.ndarray,
-        y_true_one_hot: np.ndarray,
-        y_true_proba: np.ndarray,
+        data: ClassificationData,
         maybe_sample_weights: Optional[np.ndarray],
+        class_names: Sequence[str],
     ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
         lazy_figures = []
+
+        y_true = data.target.argmaxes
+        y_true_one_hot = data.target.argmaxes_one_hot
+
+        y_pred_proba = data.pred.proba_matrix
+        y_pred = data.pred.argmaxes
 
         # --- Histogram of predicted and ground truth classes ---
         if maybe_sample_weights is None:
@@ -248,7 +213,7 @@ class ClassificationEvaluator(Evaluator):
                     lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
-                        class_names=self.class_names,
+                        class_names=class_names,
                         title_rows=[model_name, "Class Distribution"],
                         sample_weights=None,
                         x_label_rotation=self.class_label_rotation_x,
@@ -262,7 +227,7 @@ class ClassificationEvaluator(Evaluator):
                     lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
-                        class_names=self.class_names,
+                        class_names=class_names,
                         title_rows=[model_name, "Unweighted Class Distribution"],
                         sample_weights=None,
                         x_label_rotation=self.class_label_rotation_x,
@@ -276,7 +241,7 @@ class ClassificationEvaluator(Evaluator):
                     lambda: _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
-                        class_names=self.class_names,
+                        class_names=class_names,
                         title_rows=[model_name, "Weighted Class Distribution"],
                         sample_weights=maybe_sample_weights,
                         x_label_rotation=self.class_label_rotation_x,
@@ -292,7 +257,7 @@ class ClassificationEvaluator(Evaluator):
                     lambda: _bokeh_confusion_scatter(
                         y_true=y_true,
                         y_pred=y_pred,
-                        class_names=self.class_names,
+                        class_names=class_names,
                         title_rows=[model_name, "Confusion Scatter Plot"],
                         x_label_rotation=self.class_label_rotation_x,
                         y_label_rotation=self.class_label_rotation_y,
@@ -308,7 +273,7 @@ class ClassificationEvaluator(Evaluator):
                     lambda: _bokeh_confusion_matrix(
                         y_true=y_true,
                         y_pred=y_pred,
-                        class_names=self.class_names,
+                        class_names=class_names,
                         title_rows=[model_name, "Confusion Matrix"],
                         x_label_rotation=self.class_label_rotation_x,
                         y_label_rotation=self.class_label_rotation_y,
@@ -331,7 +296,7 @@ class ClassificationEvaluator(Evaluator):
 
         # --- ROC curves ---
         if self.one_vs_all_figures:
-            for class_index, class_name in enumerate(self.class_names):
+            for class_index, class_name in enumerate(class_names):
                 lazy_figures.append(
                     (
                         f"ROC {class_name} vs Rest",
@@ -346,7 +311,7 @@ class ClassificationEvaluator(Evaluator):
 
         # --- PR curves ---
         if self.one_vs_all_figures:
-            for class_index, class_name in enumerate(self.class_names):
+            for class_index, class_name in enumerate(class_names):
                 lazy_figures.append(
                     (
                         f"PR Curve {class_name} vs Rest",
@@ -363,15 +328,19 @@ class ClassificationEvaluator(Evaluator):
 
     def _quantities(
         self,
-        y_pred: np.ndarray,
-        y_pred_one_hot: np.ndarray,
-        y_pred_proba: np.ndarray,
-        y_true: np.ndarray,
-        y_true_one_hot: np.ndarray,
-        y_true_proba: np.ndarray,
+        data: ClassificationData,
         maybe_sample_weights: Optional[np.ndarray],
-    ):
+        class_names: Sequence[str],
+    ) -> Sequence[Quantity]:
         quantities = []
+
+        y_true_proba = data.target.proba_matrix
+        y_true = data.target.argmaxes
+        y_true_one_hot = data.target.argmaxes_one_hot
+
+        y_pred_proba = data.pred.proba_matrix
+        y_pred = data.pred.argmaxes
+        y_pred_one_hot = data.pred.argmaxes_one_hot
 
         quantities.append(
             Quantity(
@@ -456,7 +425,7 @@ class ClassificationEvaluator(Evaluator):
                 average=None,
                 sample_weight=maybe_sample_weights,
             )
-            for class_index, class_name in enumerate(self.class_names):
+            for class_index, class_name in enumerate(class_names):
                 quantities.append(
                     Quantity(
                         f"ROC AUC {class_name} vs Rest",
@@ -474,7 +443,7 @@ class ClassificationEvaluator(Evaluator):
                 average=None,
                 sample_weight=maybe_sample_weights,
             )
-            for class_index, class_name in enumerate(self.class_names):
+            for class_index, class_name in enumerate(class_names):
                 quantities.append(
                     Quantity(
                         f"Average Precision {class_name} vs Rest",
@@ -491,7 +460,7 @@ class ClassificationEvaluator(Evaluator):
                 average=None,
                 sample_weight=maybe_sample_weights,
             )
-            for class_index, class_name in enumerate(self.class_names):
+            for class_index, class_name in enumerate(class_names):
                 quantities.append(
                     Quantity(
                         f"F1-Score {class_name} vs Rest",
@@ -562,3 +531,25 @@ class ClassificationEvaluator(Evaluator):
         quantities.append(Quantity("Max Probability", y_pred_proba.max()))
         quantities.append(Quantity("Min Probability", y_pred_proba.min()))
         return quantities
+
+
+def _sample_weights(
+    sample_weights: Optional[Sequence[float]],
+    simulated_class_distribution: Optional[Sequence[float]],
+    y_true: Integers,
+) -> Optional[np.ndarray]:
+    if sample_weights is not None:
+        assert simulated_class_distribution is None, (
+            "Cannot use `sample_weights` with ClassificationEvaluator that was "
+            "initialized with `simulated_class_distribution`."
+        )
+        sample_weights_array = np.array(sample_weights)
+        assert_that(sample_weights_array.ndim).is_equal_to(1)
+        assert_that(sample_weights_array.shape).is_equal_to((len(y_true),))
+        npt.assert_array_equal(sample_weights_array >= 0.0, True)
+        return sample_weights_array
+    elif simulated_class_distribution is not None:
+        return sample_weights_simulating_class_distribution(
+            y_true=y_true, hypothetical_class_distribution=simulated_class_distribution
+        )
+    return None

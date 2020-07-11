@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.5
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -91,8 +91,14 @@ import metriculous
 
 test_targets_one_hot = np.eye(len(iris.target_names))[iris.target[test_indices]]
 
-metriculous.Comparator(
-    metriculous.evaluators.ClassificationEvaluator(
+metriculous.compare(
+    ground_truth=test_targets_one_hot,
+    model_predictions=[
+        model.predict_proba(iris.data[test_indices]) for name, model in models
+    ],
+    model_names=[name for name, model in models],
+    # sample_weights=np.array([0.5, 2.0, 1.0])[iris.target[test_indices]],
+    evaluator=metriculous.evaluators.ClassificationEvaluator(
         # Note: All initialization parameters are optional.
         class_names=list(iris.target_names),
         top_n_accuracies=[1, 2, 3],
@@ -101,13 +107,6 @@ metriculous.Comparator(
         class_label_rotation_x=np.pi / 4,
         class_label_rotation_y=np.pi / 4,
     ),
-).compare(
-    ground_truth=test_targets_one_hot,
-    model_predictions=[
-        model.predict_proba(iris.data[test_indices]) for name, model in models
-    ],
-    model_names=[name for name, model in models],
-    # sample_weights=np.array([0.5, 2.0, 1.0])[iris.target[test_indices]],
 ).display()
 
 # %% [markdown]
@@ -152,10 +151,10 @@ q3
 # This is to indicate which quantity should be used for model selection.
 
 # %%
-from bokeh.plotting import figure
+from bokeh.plotting import figure, Figure
 
 
-def make_figure(title):
+def make_figure(title: str) -> Figure:
     p = figure(title=title)
     p.line([0, 1, 2, 3], np.random.random(size=4), line_width=2)
     return p
@@ -217,12 +216,3 @@ comparison
 
 # %%
 comparison.display()
-
-# %% [markdown]
-# ### `Comparator`
-# Last but not least there is the `Comparator` class. It's a convenience class that ties all previous building blocks together. It get initialized with an `Evaluator1` (such as `ClassificationEvaluator` as in the example above), and can then be used to make a `Comparison` – which, in turn, can be displayed with a `display()` call.
-#
-# Note that the `compare` method has a very similar signature to `Evaluator.evaluate`. The important difference is that `Evaluator.evaluate` receives just a single prediction object, whereas `Comparator.compare` receives a sequence of prediction objects – with each object coming from one of the models that you want to compare.
-
-# %%
-print(inspect.getsource(metriculous.Comparator))

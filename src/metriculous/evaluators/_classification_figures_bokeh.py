@@ -1,26 +1,33 @@
-from typing import Sequence, Optional
+from typing import Dict, List, Optional, Sequence, Union
 
 import numpy as np
 from assertpy import assert_that
 from bokeh import plotting
 from bokeh.models import (
-    ColumnDataSource,
-    LinearColorMapper,
-    ColorBar,
     BasicTicker,
+    ColorBar,
+    ColumnDataSource,
+    HoverTool,
+    LinearColorMapper,
     PrintfTickFormatter,
 )
-from bokeh.models import HoverTool
-from bokeh.models import Title
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 from sklearn.metrics import accuracy_score
 
+from metriculous.evaluators._bokeh_utils import (
+    DARK_BLUE,
+    FONT_SIZE,
+    HISTOGRAM_ALPHA,
+    SCATTER_CIRCLES_FILL_ALPHA,
+    SCATTER_CIRCLES_LINE_ALPHA,
+    TOOLBAR_LOCATION,
+    TOOLS,
+    add_title_rows,
+    apply_default_style,
+    scatter_plot_circle_size,
+)
 from metriculous.evaluators._classification_utils import check_normalization
-
-TOOLS = "pan,box_zoom,reset"
-TOOLBAR_LOCATION = "right"
-FONT_SIZE = "8pt"
 
 
 def _bokeh_output_histogram(
@@ -29,7 +36,7 @@ def _bokeh_output_histogram(
     class_names: Sequence[str],
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray] = None,
-    x_label_rotation="horizontal",
+    x_label_rotation: Union[str, float] = "horizontal",
 ) -> Figure:
     """
     Creates a scatter plot that contains the same information as a confusion matrix.
@@ -80,7 +87,8 @@ def _bokeh_output_histogram(
             0
         ],
         width=0.85,
-        alpha=0.6,
+        color=DARK_BLUE,
+        alpha=HISTOGRAM_ALPHA,
         legend_label="Prediction",
     )
 
@@ -98,8 +106,8 @@ def _bokeh_output_histogram(
         line_width=2.5,
     )
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
     p.yaxis.axis_label = "Fraction of Instances" if normalize else "Number of Instances"
 
@@ -118,8 +126,8 @@ def _bokeh_confusion_matrix(
     y_pred: np.ndarray,
     class_names: Sequence[str],
     title_rows: Sequence[str],
-    x_label_rotation="horizontal",
-    y_label_rotation="vertical",
+    x_label_rotation: Union[str, float] = "horizontal",
+    y_label_rotation: Union[str, float] = "vertical",
 ) -> Figure:
 
     """
@@ -221,8 +229,8 @@ def _bokeh_confusion_matrix(
     )
     p.add_layout(color_bar, "right")
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
     return p
 
@@ -232,8 +240,8 @@ def _bokeh_confusion_scatter(
     y_pred: np.ndarray,
     class_names: Sequence[str],
     title_rows: Sequence[str],
-    x_label_rotation="horizontal",
-    y_label_rotation="vertical",
+    x_label_rotation: Union[str, float] = "horizontal",
+    y_label_rotation: Union[str, float] = "vertical",
 ) -> Figure:
     """
     Creates a scatter plot that contains the same information as a confusion matrix.
@@ -269,13 +277,25 @@ def _bokeh_confusion_scatter(
         match_aspect=True,
     )
 
-    def noise():
+    def noise() -> np.ndarray:
         return (np.random.beta(1, 1, size=len(y_true)) - 0.5) * 0.6
 
-    p.scatter(x=y_true + noise(), y=y_pred + noise(), alpha=0.6)
+    p.scatter(
+        x=y_true + noise(),
+        y=y_pred + noise(),
+        size=scatter_plot_circle_size(
+            num_points=len(y_true),
+            biggest=4.0,
+            smallest=1.0,
+            use_smallest_when_num_points_at_least=5000,
+        ),
+        color=DARK_BLUE,
+        fill_alpha=SCATTER_CIRCLES_FILL_ALPHA,
+        line_alpha=SCATTER_CIRCLES_LINE_ALPHA,
+    )
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
     p.xaxis.axis_label = "Ground Truth"
     p.yaxis.axis_label = "Prediction"
@@ -350,16 +370,13 @@ def _bokeh_roc_curve(
         match_aspect=True,
     )
 
-    p.background_fill_color = "#f5f5f5"
-    p.grid.grid_line_color = "white"
-
     p.xaxis.axis_label = "FPR"
     p.yaxis.axis_label = "TPR"
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
-    curve = p.line(x="FPR", y="TPR", line_width=2, color="#326496", source=source)
+    curve = p.line(x="FPR", y="TPR", line_width=2, color=DARK_BLUE, source=source)
     p.line(
         x=[0.0, 1.0], y=[0.0, 1.0], line_alpha=0.75, color="grey", line_dash="dotted"
     )
@@ -387,7 +404,7 @@ def _bokeh_precision_recall_curve(
     y_true_binary: np.ndarray,
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
-    sample_weights=Optional[np.ndarray],
+    sample_weights: Optional[np.ndarray],
 ) -> Figure:
     """
     Plots an interactive precision recall curve.
@@ -437,8 +454,8 @@ def _bokeh_precision_recall_curve(
     # reminder: tpr == recall == sensitivity
     p.line(x="recall", y="precision", line_width=2, source=source)
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
     p.xaxis.axis_label = "Recall"
     p.yaxis.axis_label = "Precision"
@@ -504,7 +521,11 @@ def _bokeh_automation_rate_analysis(
     maxes = y_pred_proba.max(axis=1)
     assert isinstance(maxes, np.ndarray)  # making IntelliJ's type checker happy
 
-    chart_data = {"automation_rate": [], "threshold": [], "accuracy": []}
+    chart_data: Dict[str, List[float]] = {
+        "automation_rate": [],
+        "threshold": [],
+        "accuracy": [],
+    }
 
     for threshold in sorted(maxes):
         automated = maxes >= threshold
@@ -539,6 +560,7 @@ def _bokeh_automation_rate_analysis(
         x="automation_rate",
         y="accuracy",
         line_width=2,
+        color=DARK_BLUE,
         source=source,
         legend_label="Accuracy",
     )
@@ -562,8 +584,8 @@ def _bokeh_automation_rate_analysis(
         color="grey",
     )
 
-    _add_title_rows(p, title_rows)
-    _apply_default_style(p)
+    add_title_rows(p, title_rows)
+    apply_default_style(p)
 
     p.xaxis.axis_label = "Automation Rate"
     p.legend.location = "bottom_left"
@@ -582,35 +604,3 @@ def _bokeh_automation_rate_analysis(
     )
 
     return p
-
-
-def _add_title_rows(p: Figure, title_rows: Sequence[str]):
-    for title_row in reversed(title_rows):
-        p.add_layout(
-            Title(text=title_row, text_font_size=FONT_SIZE, align="center"),
-            place="above",
-        )
-
-
-def _apply_default_style(p: Figure):
-    p.background_fill_color = "#f5f5f5"
-    p.grid.grid_line_color = "white"
-
-    p.toolbar.logo = None
-
-    p.xaxis.axis_label_text_font_size = FONT_SIZE
-    p.yaxis.axis_label_text_font_size = FONT_SIZE
-
-    p.axis.axis_line_color = None
-
-    p.xaxis.major_tick_line_color = None  # turn off x-axis major ticks
-    p.xaxis.minor_tick_line_color = None  # turn off x-axis minor ticks
-
-    p.yaxis.major_tick_line_color = None  # turn off y-axis major ticks
-    p.yaxis.minor_tick_line_color = None  # turn off y-axis minor ticks
-
-    p.axis.major_label_standoff = 0
-
-    if p.legend:
-        p.legend.label_text_font_size = FONT_SIZE
-        p.legend.background_fill_alpha = 0.85

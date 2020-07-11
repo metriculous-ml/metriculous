@@ -1,13 +1,14 @@
 from metriculous import *  # noqa
 
 
-def test_import_star():
+def test_import_star() -> None:
     _ = Quantity("q", 42.0)  # noqa
 
-    e = Evaluator()  # noqa
-    _ = Evaluation([], "MyModel")  # noqa
+    _ = Evaluator()  # noqa
+    _ = Evaluation("MyModel", [], [])  # noqa
 
-    _ = Comparator(evaluator=e)  # noqa
+    classification_evaluator = evaluators.ClassificationEvaluator()  # noqa
+
+    _ = evaluators.RegressionEvaluator()  # noqa
+
     _ = Comparison([])  # noqa
-
-    _ = evaluators.ClassificationEvaluator()  # noqa

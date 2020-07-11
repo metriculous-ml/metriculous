@@ -8,31 +8,40 @@
 
 # change the 20 value in printf to adjust width
 # Use ' ## some comment' behind a command and it will be added to the help message automatically
-help: ## Show this help message
+help: ## Shows this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-bump: ## Bump metriculous version
-	poetry run reliesl bump
+format: ## Formats code and sort imports
+	poetry run isort src
+	poetry run black src notebooks
 
-check: ## Run all static checks (like pre-commit hooks)
-	pre-commit run --all-files
+check: ## Runs all static checks (flake8, mypy, formatting checks)
+	@echo "\n=== isort ======================="
+	poetry run isort --check-only src
+	@echo "\n=== black ======================="
+	poetry run black --check src
+	@echo "\n=== flake8 ======================"
+	poetry run flake8 src --ignore=E203,E266,E501,W503 --max-line-length=88 --max-complexity=15 --select=B,C,E,F,W,T4,B9
+	@echo "\n=== mypy ========================"
+	poetry run mypy src notebooks/**
+
 
 clean:
 	-find . -type f -name "*.py[co]" -delete
 	-find . -type d -name "__pycache__" -delete
 	-find . -type d -name ".pytest_cache" -exec rm -r "{}" \;
 
-unit-test: clean
-	poetry run pytest src/
 
-test: unit-test ## Run all tests
+test: ## Runs all tests with pytest
+	@echo "\n=== pytest ========================"
+	make clean
+	poetry run pytest src/
 	poetry run pytest notebooks/
 
 
 
 # --------------Configuration-------------
 
-.ONESHELL: ; # recipes execute in same shell
 .NOTPARALLEL: ; # wait for this target to finish
 .EXPORT_ALL_VARIABLES: ; # send all vars to shell
 

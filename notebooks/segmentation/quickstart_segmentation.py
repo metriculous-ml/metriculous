@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.5
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -36,9 +36,11 @@ np.random.seed(42)
 # #### Define dataset properties
 
 # %%
-image_size = [2, 256, 256]
-num_classes = 3
-class_names = ["dog", "tree", "cat"]
+number_of_images = 5
+image_height = 128
+image_width = 128
+data_shape = (number_of_images, image_height, image_width)
+class_names = ("dog", "tree", "cat")
 
 # %% [markdown]
 # #### Generate ground truth data
@@ -53,7 +55,7 @@ class_names = ["dog", "tree", "cat"]
 # | 2 |  cat |
 
 # %%
-ground_truth = np.random.choice([0, 0, 1, 1, 2], size=image_size)
+ground_truth = np.random.choice([0, 0, 1, 1, 2], size=data_shape)
 ground_truth.shape
 
 # %% [markdown]
@@ -71,7 +73,7 @@ for i in range(num_models):
     models.append(
         {
             "name": f"Model {i + 1}",
-            "predictions": np.random.choice([0, 1, 1, 2, 2, 2], size=image_size),
+            "predictions": np.random.choice([0, 1, 1, 2, 2, 2], size=data_shape),
         }
     )
 
@@ -81,14 +83,15 @@ for i in range(num_models):
 # %%
 import metriculous
 
-metriculous.Comparator(
-    metriculous.evaluators.SegmentationEvaluator(
-        num_classes=num_classes,
-        class_names=class_names,
-        class_weights=[0.11, 0.54, 0.35],
-    ),
-).compare(
+metriculous.compare(
     ground_truth=ground_truth,
     model_predictions=[model["predictions"] for model in models],
     model_names=[model["name"] for model in models],
+    evaluator=metriculous.evaluators.SegmentationEvaluator(
+        num_classes=len(class_names),
+        class_names=class_names,
+        class_weights=[0.11, 0.54, 0.35],
+    ),
 ).display()
+
+# %%

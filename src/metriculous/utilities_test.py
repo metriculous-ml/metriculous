@@ -1,12 +1,13 @@
+from typing import Sequence
+
 import numpy as np
 import pytest
-
 from sklearn import metrics as sklmetrics
 
 from . import utilities
 
 
-def test_sample_weights():
+def test_sample_weights() -> None:
     y_true = np.array([0, 0, 0, 0, 1, 1, 2, 2, 2, 2])
     weights = utilities.sample_weights_simulating_class_distribution(
         y_true=y_true,  # distribution: [0.4, 0.2, 0.4]
@@ -43,7 +44,7 @@ def test_sample_weights():
     )
 
 
-def test_sample_weights__distribution_not_normalized():
+def test_sample_weights__distribution_not_normalized() -> None:
     """
     Checks that an exception is raised if the hypothetical class distribution is not
     normalized.
@@ -67,7 +68,9 @@ def test_sample_weights__distribution_not_normalized():
         ([1], [1.0]),
     ],
 )
-def test_sample_weights__class_not_represented(y_true, hypothetical_class_weights):
+def test_sample_weights__class_not_represented(
+    y_true: Sequence[int], hypothetical_class_weights: Sequence[float]
+) -> None:
     """
     Checks that an exception is raised if at least one class is not represented in the
     input.

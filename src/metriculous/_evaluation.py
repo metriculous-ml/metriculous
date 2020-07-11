@@ -2,13 +2,8 @@
 This module contains data types and interfaces that are used throughout the library.
 Here we do not make any assumptions about the structure of ground truth and predictions.
 """
-from dataclasses import dataclass
-from dataclasses import field
-from dataclasses import replace
-from typing import Any, Sequence, Callable
-from typing import List
-from typing import Optional
-from typing import Union
+from dataclasses import dataclass, field, replace
+from typing import Callable, Generic, Optional, Sequence, TypeVar, Union
 
 from bokeh.plotting import Figure
 
@@ -28,7 +23,7 @@ class Evaluation:
     lazy_figures: Sequence[Callable[[], Figure]] = field(default_factory=list)
     primary_metric: Optional[str] = None
 
-    def get_by_name(self, quantity_name) -> Quantity:
+    def get_by_name(self, quantity_name: str) -> Quantity:
         # Number of quantities is usually small,
         # so do not bother with internal dict for lookup
         for q in self.quantities:
@@ -46,10 +41,10 @@ class Evaluation:
 
     def filtered(
         self,
-        keep_higher_is_better=False,
-        keep_lower_is_better=False,
-        keep_neutral_quantities=False,
-    ):
+        keep_higher_is_better: bool = False,
+        keep_lower_is_better: bool = False,
+        keep_neutral_quantities: bool = False,
+    ) -> "Evaluation":
         return replace(
             self,
             quantities=[
@@ -66,7 +61,11 @@ class Evaluation:
         )
 
 
-class Evaluator:
+G = TypeVar("G", contravariant=True)
+P = TypeVar("P", contravariant=True)
+
+
+class Evaluator(Generic[G, P]):
     """
     Interface to be implemented by the user to compute quantities and charts that are
     relevant and applicable to the problem at hand.
@@ -74,8 +73,8 @@ class Evaluator:
 
     def evaluate(
         self,
-        ground_truth: Any,
-        model_prediction: Any,
+        ground_truth: G,
+        model_prediction: P,
         model_name: str,
         sample_weights: Optional[Sequence[float]] = None,
     ) -> Evaluation:

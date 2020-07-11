@@ -1,12 +1,9 @@
 """Module defining generic metric functions."""
-from typing import List
-from typing import Optional
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 from assertpy import assert_that
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score, roc_curve
 
 
 def normalized(matrix: np.ndarray) -> np.ndarray:
@@ -19,7 +16,7 @@ def normalized(matrix: np.ndarray) -> np.ndarray:
 
 
 def cross_entropy(
-    target_probas: np.ndarray, pred_probas: np.ndarray, epsilon=1e-15
+    target_probas: np.ndarray, pred_probas: np.ndarray, epsilon: float = 1e-15
 ) -> float:
     """Returns the cross-entropy for probabilistic ground truth labels.
 

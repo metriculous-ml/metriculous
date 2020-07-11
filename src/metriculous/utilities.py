@@ -1,11 +1,13 @@
-from typing import Sequence
+from typing import Sequence, Union
 
 import numpy as np
+import numpy.testing as npt
 from assertpy import assert_that
 
 
 def sample_weights_simulating_class_distribution(
-    y_true: Sequence[int], hypothetical_class_distribution: Sequence[float]
+    y_true: Union[Sequence[int], np.ndarray],
+    hypothetical_class_distribution: Union[Sequence[float], np.ndarray],
 ) -> np.ndarray:
     """
     Computes a 1D array of sample weights that results in the requested
@@ -51,14 +53,18 @@ def sample_weights_simulating_class_distribution(
     y_true = np.asarray(y_true)
     hypothetical_class_distribution = np.asarray(hypothetical_class_distribution)
 
-    np.testing.assert_allclose(hypothetical_class_distribution.sum(), 1.0)
+    npt.assert_allclose(
+        hypothetical_class_distribution.sum(),
+        1.0,
+        err_msg="Probability distribution does not sum up to 1.0",
+    )
     assert_that(y_true.ndim).is_equal_to(1)
     assert_that(hypothetical_class_distribution.ndim).is_equal_to(1)
 
     # --- compute output ---
     class_distribution = np.bincount(y_true) / len(y_true)
-    np.testing.assert_equal(class_distribution > 0.0, True)
-    np.testing.assert_allclose(class_distribution.sum(), 1.0)
+    npt.assert_equal(class_distribution > 0.0, True)
+    npt.assert_allclose(class_distribution.sum(), 1.0)
 
     weights = [
         hypothetical_class_distribution[y] / class_distribution[y] for y in y_true

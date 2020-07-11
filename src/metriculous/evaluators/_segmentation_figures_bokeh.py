@@ -2,9 +2,9 @@ from typing import Optional
 
 import numpy as np
 from bokeh import plotting
-from bokeh.plotting import Figure
-from bokeh.models import Title
 from bokeh.layouts import column
+from bokeh.models import Title
+from bokeh.plotting import Figure
 
 TOOLS = "pan,box_zoom,reset"
 TOOLBAR_LOCATION = "right"

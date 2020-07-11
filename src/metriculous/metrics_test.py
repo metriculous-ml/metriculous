@@ -1,17 +1,19 @@
 import numpy as np
 import pytest
-import sklearn.metrics as sklmetrics
 from scipy.stats import entropy
+from sklearn import metrics as sklmetrics
 
-import metriculous.metrics as metrics
-from metriculous.metrics import normalized
-from metriculous.metrics import sensitivity_at_x_specificity
-from metriculous.metrics import specificity_at_x_sensitivity
-from metriculous.metrics import top_n_accuracy
+from metriculous import metrics as metrics
+from metriculous.metrics import (
+    normalized,
+    sensitivity_at_x_specificity,
+    specificity_at_x_sensitivity,
+    top_n_accuracy,
+)
 
 
 # --- normalized -----------------------------------------------------------------------
-def test_normalized():
+def test_normalized() -> None:
     # fmt: off
     result = metrics.normalized(np.array([
         [.0, .0],
@@ -40,7 +42,7 @@ def test_normalized():
 
 
 # --- cross-entropy --------------------------------------------------------------------
-def test_cross_entropy_zero():
+def test_cross_entropy_zero() -> None:
     ce = metrics.cross_entropy(
         target_probas=np.array([[1.0, 0.0], [1.0, 0.0]]),
         pred_probas=np.array([[1.0, 0.0], [1.0, 0.0]]),
@@ -49,16 +51,16 @@ def test_cross_entropy_zero():
     np.testing.assert_allclose(ce, 0.0, atol=1e-15)
 
 
-def test_cross_entropy_certainty_in_targets():
+def test_cross_entropy_certainty_in_targets() -> None:
     target_probas = np.array([[1.0, 0.0], [1.0, 0.0]])
     pred_probas = np.array([[0.6, 0.4], [0.1, 0.9]])
     eps = 1e-15
-    ce = metrics.cross_entropy(target_probas, pred_probas, eps)
-    ll = sklmetrics.log_loss(target_probas, pred_probas, eps)
+    ce = metrics.cross_entropy(target_probas, pred_probas, epsilon=eps)
+    ll = sklmetrics.log_loss(target_probas, pred_probas, eps=eps)
     np.testing.assert_allclose(ce, ll)
 
 
-def test_cross_entropy_general_fuzz_test():
+def test_cross_entropy_general_fuzz_test() -> None:
     rng = np.random.RandomState(42)
     for _ in range(10):
         probas = normalized(rng.rand(100, 2))
@@ -68,7 +70,7 @@ def test_cross_entropy_general_fuzz_test():
 
 
 # --- A vs B AUROC ---------------------------------------------------------------------
-def test_a_vs_b_auroc():
+def test_a_vs_b_auroc() -> None:
     value = metrics.a_vs_b_auroc(
         target_ints=np.array([0, 0, 0, 1, 1, 1, 2, 2, 2]),
         predicted_probas=np.array(
@@ -90,7 +92,7 @@ def test_a_vs_b_auroc():
     assert value == 1.0
 
 
-def test_a_vs_b_auroc_symmetry():
+def test_a_vs_b_auroc_symmetry() -> None:
     """Check that result is the same when classes are swapped."""
     rng = np.random.RandomState(42)
 
@@ -108,7 +110,7 @@ def test_a_vs_b_auroc_symmetry():
         np.testing.assert_allclose(a1b2, a2b1, atol=1e-15)
 
 
-def test_a_vs_b_auroc_zeros():
+def test_a_vs_b_auroc_zeros() -> None:
     """Check case with zeros in all interesting columns."""
     value = metrics.a_vs_b_auroc(
         target_ints=np.array([0, 1]),
@@ -116,11 +118,12 @@ def test_a_vs_b_auroc_zeros():
         class_a=0,
         class_b=1,
     )
+    assert value is not None
     # we just want to make sure this did not crash
     assert 0.0 <= value <= 1.0
 
 
-def test_a_vs_b_auroc_none():
+def test_a_vs_b_auroc_none() -> None:
     """Check case where it should return None."""
     rng = np.random.RandomState(42)
 
@@ -135,7 +138,7 @@ def test_a_vs_b_auroc_none():
 
 
 # --- sensitivity at specificity -------------------------------------------------------
-def test_sensitivity_at_x_specificity():
+def test_sensitivity_at_x_specificity() -> None:
     """Test AUC 0.5 prediction."""
     n = 500
     labels = np.concatenate((np.zeros(n), np.ones(n)))
@@ -146,13 +149,14 @@ def test_sensitivity_at_x_specificity():
         sens, spec = sensitivity_at_x_specificity(
             target_ints=labels, positive_probas=positive_probas, at_specificity=at
         )
-
+        assert sens is not None
+        assert spec is not None
         np.testing.assert_allclose(spec, at, atol=0.003)
         np.testing.assert_allclose(sens, 1.0 - spec, atol=0.003)
 
 
 # --- specificity at sensitivity -------------------------------------------------------
-def test_specificity_at_x_sensitivity():
+def test_specificity_at_x_sensitivity() -> None:
     """Test AUC 0.5 prediction."""
     n = 500
     labels = np.concatenate((np.zeros(n), np.ones(n)))
@@ -163,13 +167,15 @@ def test_specificity_at_x_sensitivity():
         spec, sens = specificity_at_x_sensitivity(
             target_ints=labels, positive_probas=positive_probas, at_sensitivity=at
         )
+        assert spec is not None
+        assert sens is not None
 
         np.testing.assert_allclose(sens, at, atol=0.003)
         np.testing.assert_allclose(spec, 1.0 - sens, atol=0.003)
 
 
 # --- top N accuracy -------------------------------------------------------------------
-def test_top_n_accuracy_all_correct():
+def test_top_n_accuracy_all_correct() -> None:
     np.random.seed(42)
     n_classes = 30
     for i in range(5):
@@ -181,7 +187,7 @@ def test_top_n_accuracy_all_correct():
             assert top_n_accuracy(target_ints, pred_probas, n) == 1.0
 
 
-def test_top_n_accuracy():
+def test_top_n_accuracy() -> None:
     target_ints = np.array([3, 1, 4])
     # fmt:off
     pred_probas = np.array([
@@ -198,7 +204,7 @@ def test_top_n_accuracy():
     assert 3 / 3 == top_n_accuracy(target_ints, pred_probas, n=999)
 
 
-def test_top_n_accuracy__sample_weights_default():
+def test_top_n_accuracy__sample_weights_default() -> None:
     """
     Checks that passing in a uniform sample_weights vector does the same as passing
     `None` or using the default.
@@ -224,7 +230,7 @@ def test_top_n_accuracy__sample_weights_default():
     )
 
 
-def test_top_n_accuracy__sample_weights():
+def test_top_n_accuracy__sample_weights() -> None:
     """
     Same test as above, with additional zero-weighted samples, should get same output.
     """
@@ -260,7 +266,7 @@ def test_top_n_accuracy__sample_weights():
     )
 
 
-def test_top_n_accuracy__sample_weights_scaled():
+def test_top_n_accuracy__sample_weights_scaled() -> None:
     """
     Checks that scaling the weight vector does not change the results.
     """
@@ -284,7 +290,7 @@ def test_top_n_accuracy__sample_weights_scaled():
     )
 
 
-def test_top_n_accuracy__sample_weights_all_zeros():
+def test_top_n_accuracy__sample_weights_all_zeros() -> None:
     """
     Checks that passing in zero vector `sample_weights` raises `ZeroDivisionError`.
     """
@@ -305,7 +311,7 @@ def test_top_n_accuracy__sample_weights_all_zeros():
         _ = top_n_accuracy(target_ints, pred_probas, n=1, sample_weights=sample_weights)
 
 
-def test_top_n_accuracy__sample_weights_negative():
+def test_top_n_accuracy__sample_weights_negative() -> None:
     """
     Checks that an exception is raised if at least one of the sample weights is
     negative.

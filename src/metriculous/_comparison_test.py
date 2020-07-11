@@ -1,8 +1,8 @@
 from pathlib import Path
 
+import pytest
 from bokeh import plotting
 from bokeh.plotting import Figure
-import pytest
 
 from metriculous import Comparison, Evaluation, Quantity
 
@@ -13,7 +13,7 @@ def make_a_bokeh_figure() -> Figure:
     return p
 
 
-def make_a_comparison(with_quantities: bool, with_figures: bool):
+def make_a_comparison(with_quantities: bool, with_figures: bool) -> Comparison:
     evaluations = [
         Evaluation(
             model_name=f"Model_{i}",
@@ -36,7 +36,7 @@ def make_a_comparison(with_quantities: bool, with_figures: bool):
 class TestComparison:
     @pytest.mark.parametrize("with_quantities", [True, False])
     @pytest.mark.parametrize("with_figures", [True, False])
-    def test_html_smoke_test(self, with_quantities: bool, with_figures: bool):
+    def test_html_smoke_test(self, with_quantities: bool, with_figures: bool) -> None:
         comparison = make_a_comparison(with_quantities, with_figures=with_figures)
         html_string = comparison.html()
         assert isinstance(html_string, str)
@@ -53,7 +53,7 @@ class TestComparison:
     @pytest.mark.parametrize("include_spacer", [True, False])
     def test_save_html(
         self, with_quantities: bool, with_figures: bool, include_spacer: bool
-    ):
+    ) -> None:
         comparison = make_a_comparison(with_quantities, with_figures=with_figures)
         path = Path("save_html_smoke_test_output.html")
         comparison.save_html(path)
@@ -64,7 +64,7 @@ class TestComparison:
             for q in evaluation.quantities:
                 assert q.name in html_in_file
 
-    def test_display_then_html_then_save_html_smoke_test(self):
+    def test_display_then_html_then_save_html_smoke_test(self) -> None:
         """ Checks that subsequent calls do not interfere with each other. """
         comparison = make_a_comparison(with_quantities=True, with_figures=True)
         comparison.display()

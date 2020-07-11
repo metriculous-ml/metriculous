@@ -1,76 +1,92 @@
 import pytest
-from assertpy import assert_that
 
 
-def test_exposed_entities():
+def test_exposed_entities() -> None:
     expected = [
-        "Comparator",
+        "compare",
+        "compare_classifiers",
+        "compare_regressors",
         "Comparison",
         "Evaluator",
         "Evaluation",
         "Quantity",
-        "evaluators",
         "utilities",
+        "evaluators",
+        "ClassificationEvaluator",
+        "RegressionEvaluator",
     ]
 
     import metriculous
 
-    assert_that(metriculous.__all__).is_equal_to(expected)
+    assert metriculous.__all__ == expected
 
 
-def test_imports_from_style():
-    from metriculous import Comparator
-    from metriculous import Comparison
-    from metriculous import Evaluation
-    from metriculous import Evaluator
-    from metriculous import Quantity
-
-    num_classes = 42
+def test_imports_from_style() -> None:
+    from metriculous import (
+        ClassificationEvaluator,
+        Comparison,
+        Evaluation,
+        Evaluator,
+        Quantity,
+        RegressionEvaluator,
+    )
 
     _ = Quantity("q", 42.0)
 
-    e = Evaluator()
+    _ = Evaluator()
     _ = Evaluation("MyModel", [], [])
 
-    _ = Comparator(evaluator=e)
     _ = Comparison([])
 
-    with pytest.raises(ImportError):
-        # noinspection PyUnresolvedReferences,PyProtectedMember
-        from metriculous import ClassificationEvaluator
+    _ = ClassificationEvaluator()
+    _ = RegressionEvaluator()
 
-        _ = ClassificationEvaluator()
 
-    from metriculous.evaluators import ClassificationEvaluator
+def test_imports_from_metriculous_evaluators() -> None:
+
+    from metriculous.evaluators import (
+        ClassificationEvaluator,
+        RegressionEvaluator,
+        SegmentationEvaluator,
+    )
 
     _ = ClassificationEvaluator()
-
-    with pytest.raises(ImportError):
-        # noinspection PyUnresolvedReferences,PyProtectedMember
-        from metriculous import SegmentationEvaluator
-
-        _ = SegmentationEvaluator(num_classes)
-
-    from metriculous.evaluators import SegmentationEvaluator
-
-    _ = SegmentationEvaluator(num_classes)
+    _ = RegressionEvaluator()
+    _ = SegmentationEvaluator(num_classes=5)
 
 
-def test_imports_prefix_style():
+def test_imports_prefix_style() -> None:
     import metriculous as met
 
-    num_classes = 42
+    assert hasattr(met, "compare")
+
+    _ = met.compare_classifiers(
+        ground_truth=[[0.8, 0.1, 0.1], [0.0, 0.9, 0.1], [0.2, 0.2, 0.6]],
+        model_predictions=[
+            [[0.2, 0.2, 0.6], [0.3, 0.4, 0.3], [0.3, 0.4, 0.3]],
+            [[0.3, 0.0, 0.7], [0.1, 0.1, 0.8], [0.1, 0.1, 0.8]],
+        ],
+    )
+
+    _ = met.compare_regressors(
+        ground_truth=[0.5, 42.0, -3],
+        model_predictions=[[0.5, 42.0, -3], [0.5, 42.0, -3]],
+    )
 
     _ = met.Quantity("q", 42.0)
 
-    e = met.Evaluator()
+    _ = met.Evaluator()
     _ = met.Evaluation("MyModel", [], [])
 
-    _ = met.Comparator(evaluator=e)
     _ = met.Comparison([])
 
+    _ = met.ClassificationEvaluator()
     _ = met.evaluators.ClassificationEvaluator()
-    _ = met.evaluators.SegmentationEvaluator(num_classes)
+
+    _ = met.RegressionEvaluator()
+    _ = met.evaluators.RegressionEvaluator()
+
+    _ = met.evaluators.SegmentationEvaluator(num_classes=42)
 
     _ = met.utilities.sample_weights_simulating_class_distribution(
         [0, 1, 2, 2], [0.8, 0.2, 0.0]
@@ -78,5 +94,4 @@ def test_imports_prefix_style():
 
     with pytest.raises(AttributeError):
         # noinspection PyUnresolvedReferences
-        _ = met.ClassificationEvaluator()
-        _ = met.SegmentationEvaluator(num_classes)
+        _ = met.SegmentationEvaluator(num_classes=42)  # type: ignore

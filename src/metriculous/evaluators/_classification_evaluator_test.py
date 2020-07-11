@@ -1,11 +1,10 @@
 from dataclasses import replace
-from typing import Optional, List
+from typing import Callable, List, Optional, Sequence
 
 import numpy as np
 import pytest
 
-from .._evaluation import Evaluation
-from .._evaluation import Quantity
+from .._evaluation import Evaluation, Quantity
 from ..evaluators import ClassificationEvaluator
 from ..test_resources import noisy_prediction
 
@@ -34,8 +33,8 @@ def random_targets_one_hot(num_classes: int, num_samples: int) -> np.ndarray:
         "primary_metric,"
     ),
     argvalues=zip(
-        [None, False, True],
-        [True, None, False],
+        [False, True],
+        [True, False],
         [(4,), [], [2, 3, 42]],
         [None, lambda name: "a" in name, lambda name: False],
         ["Accuracy", None, None],
@@ -44,16 +43,16 @@ def random_targets_one_hot(num_classes: int, num_samples: int) -> np.ndarray:
 @pytest.mark.parametrize("use_sample_weights", [False, True])
 def test_ClassificationEvaluator(
     noise_factor: float,
-    simulated_class_distribution: bool,
+    simulated_class_distribution: Optional[Sequence[float]],
     num_samples: int,
     classes: Optional[List[str]],
-    one_vs_all_quantities: Optional[bool],
-    one_vs_all_figures: Optional[bool],
-    top_n_accuracies: Optional[List[int]],
-    filter_quantities: callable,
+    one_vs_all_quantities: bool,
+    one_vs_all_figures: bool,
+    top_n_accuracies: Sequence[int],
+    filter_quantities: Callable[[str], bool],
     primary_metric: Optional[str],
     use_sample_weights: bool,
-):
+) -> None:
     """Basic smoke test making sure we don't crash with valid input."""
 
     np.random.seed(42)
@@ -98,8 +97,10 @@ def test_ClassificationEvaluator(
     [(False, None), (False, [0.3, 0.5, 0.2]), (True, None)],
 )
 def test_ClassificationEvaluator_perfect_prediction(
-    num_samples, use_sample_weights: bool, simulated_class_distribution: List[float]
-):
+    num_samples: int,
+    use_sample_weights: bool,
+    simulated_class_distribution: List[float],
+) -> None:
     np.random.seed(42)
     targets_one_hot = random_targets_one_hot(num_classes=3, num_samples=num_samples)
     prediction = noisy_prediction(targets_one_hot, noise_factor=0.0)
@@ -261,7 +262,9 @@ def test_ClassificationEvaluator_perfect_prediction(
         lambda name: "vs Rest" not in name,
     ],
 )
-def test_ClassificationEvaluator_filter_quantities(num_samples, quantity_filter):
+def test_ClassificationEvaluator_filter_quantities(
+    num_samples: int, quantity_filter: Callable[[str], bool]
+) -> None:
     np.random.seed(42)
     targets_one_hot = random_targets_one_hot(num_classes=3, num_samples=num_samples)
     prediction = noisy_prediction(targets_one_hot, noise_factor=0.0)
@@ -312,8 +315,10 @@ def test_ClassificationEvaluator_filter_quantities(num_samples, quantity_filter)
     ],
 )
 def test_ClassificationEvaluator_filter_figures(
-    num_samples: int, desired_number_of_figures: int, figure_filter: callable
-):
+    num_samples: int,
+    desired_number_of_figures: int,
+    figure_filter: Callable[[str], bool],
+) -> None:
     np.random.seed(42)
     targets_one_hot = random_targets_one_hot(num_classes=3, num_samples=num_samples)
     prediction = noisy_prediction(targets_one_hot, noise_factor=0.0)
@@ -347,7 +352,7 @@ def test_ClassificationEvaluator_filter_figures(
 @pytest.mark.parametrize("num_samples", [100, 200])
 def test_ClassificationEvaluator_exception_when_passing_distribution_and_weights(
     num_samples: int,
-):
+) -> None:
     """
     Checks that an exception is raised when `sample_weights` are passed to an evaluator
     that has been initialized with `simulated_class_distribution`.

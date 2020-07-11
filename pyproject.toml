@@ -2,15 +2,30 @@
 name = "metriculous"
 version = "0.1.0"
 description = "Very unstable library containing utilities to measure and visualize statistical properties of machine learning models."
-authors = ["Luminovo GmbH <pypi@luminovo.ai>"]
-maintainers = ["Marlon <marlon@luminovo.ai>", "Timon Ruban <truban93@gmail.com>"]
+authors = ["Marlon", "Luminovo GmbH <pypi@luminovo.ai>"]
+maintainers = ["Marlon"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://gitlab.com/luminovo/public/metriculous"
-repository = "https://gitlab.com/luminovo/public/metriculous"
-keywords = ["metriculous", "machine", "learning", "metrics"]
-classifiers = ["Development Status :: 3 - Alpha"]
-
+repository = "https://github.com/metriculous-ml/metriculous"
+keywords = [
+    "metriculous", "machine", "learning", "metrics", "statistics", "data science", "evaluation",
+    "regression", "classification", "residual plot", "ROC curve", "PR curve", "confusion matrix",
+    "statistical performance", "ML", "deep learning", "scikit-learn", "bokeh", "forecasting"
+    ]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Quality Assurance",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    ]
 include = ["LICENSE"]
 
 
@@ -20,13 +35,18 @@ numpy = ">=1.16"
 scikit-learn = ">=0.21.2"
 assertpy = ">=0.14.0"
 pandas = ">=0.24.0"
-bokeh = "^1.1"
+bokeh = "^2.1.1"
+jupyter = "^1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
-jupyter = "^1.0"
 jupytext = "^1.0"
-reliesl = "^0.1.1"
+mypy = "^0.782"
+isort = "^5.0.9"
+black = "^19.10b0"
+flake8 = "^3.8.3"
+numpy-stubs = {git = "https://github.com/numpy/numpy-stubs.git"}
+jupyterlab = "^2.2.2"
 
 [build-system]
 requires = ["poetry>=1.0.2"]

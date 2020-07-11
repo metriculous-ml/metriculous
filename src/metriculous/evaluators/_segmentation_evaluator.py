@@ -1,15 +1,10 @@
-from typing import Callable, List, Tuple
-from typing import Iterable
-from typing import Optional
-from typing import Sequence
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
-from bokeh.plotting import Figure
 import numpy as np
+from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 
-from .._evaluation import Evaluation
-from .._evaluation import Evaluator
-from .._evaluation import Quantity
+from .._evaluation import Evaluation, Evaluator, Quantity
 from ..evaluators._classification_figures_bokeh import _bokeh_output_histogram
 from ..evaluators._segmentation_figures_bokeh import _bokeh_heatmap
 
@@ -65,7 +60,9 @@ class SegmentationEvaluator(Evaluator):
         self.num_classes = num_classes
 
         if class_names is None:
-            self.class_names = ["class_{}".format(i) for i in range(num_classes)]
+            self.class_names: Sequence[str] = [
+                "class_{}".format(i) for i in range(num_classes)
+            ]
         else:
             self.class_names = class_names
 
@@ -88,12 +85,12 @@ class SegmentationEvaluator(Evaluator):
 
         if len(self.class_names) != self.num_classes:
             raise ValueError(
-                "The number of classes don't match the length of the class_names"
+                "The number of classes doesn't match the number of the class names"
             )
 
         if len(self.class_weights) != self.num_classes:
             raise ValueError(
-                "The number of classes don't match the length of the class_weights"
+                "The number of classes doesn't match the number of the class weights"
             )
 
     def evaluate(
@@ -121,7 +118,6 @@ class SegmentationEvaluator(Evaluator):
         Returns:
             An Evaluation object containing Quantities and Figures that are useful for
             most segmentation problems.
-
 
         """
 
@@ -209,7 +205,7 @@ class SegmentationEvaluator(Evaluator):
 
         return lazy_figures
 
-    def _quantities(self, y_pred: np.ndarray, y_true: np.ndarray):
+    def _quantities(self, y_pred: np.ndarray, y_true: np.ndarray) -> Sequence[Quantity]:
 
         # Flattened them as jaccard_score requires it in this way
         y_true_flattened, y_pred_flattened = y_true.flatten(), y_pred.flatten()

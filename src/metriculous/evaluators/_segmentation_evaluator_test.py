@@ -1,17 +1,17 @@
-from typing import List
+import copy
+from dataclasses import replace
+from typing import Callable, List, Tuple
 
 import numpy as np
 import pytest
-import copy
 
-from dataclasses import replace
-
-from .._evaluation import Evaluation
-from .._evaluation import Quantity
+from .._evaluation import Evaluation, Quantity
 from ..evaluators import SegmentationEvaluator
 
 
-def get_random_prediction_and_mask(image_size, num_classes):
+def get_random_prediction_and_mask(
+    image_size: Tuple[int, int, int], num_classes: int
+) -> Tuple[np.ndarray, np.ndarray]:
     return (
         np.random.randint(0, num_classes, image_size),
         np.random.randint(0, num_classes, image_size),
@@ -19,7 +19,7 @@ def get_random_prediction_and_mask(image_size, num_classes):
 
 
 @pytest.mark.parametrize("classes", (["dog", "cat", "snake"], ["dog", "cat"]))
-def test_SegmentationEvaluator(classes: List[str]):
+def test_SegmentationEvaluator(classes: List[str]) -> None:
 
     np.random.seed(42)
 
@@ -38,7 +38,7 @@ def test_SegmentationEvaluator(classes: List[str]):
 
 
 @pytest.mark.parametrize("classes", (["dog", "cat", "snake"], ["dog", "cat"]))
-def test_SegmentationEvaluator_perfect_prediction(classes: List[str]):
+def test_SegmentationEvaluator_perfect_prediction(classes: List[str]) -> None:
 
     np.random.seed(42)
 
@@ -86,7 +86,7 @@ def test_SegmentationEvaluator_perfect_prediction(classes: List[str]):
 )
 def test_SegmentationEvaluator_inconsistent_class_names(
     num_classes: int, class_names: List[str]
-):
+) -> None:
 
     """
     Tests if the __init__ method of SegmentationEvaluator raises an error if the
@@ -101,7 +101,7 @@ def test_SegmentationEvaluator_inconsistent_class_names(
 @pytest.mark.parametrize("num_classes, class_weights", [(1, [0.2, 0.3]), (2, [0.2])])
 def test_SegmentationEvaluator_inconsistent_class_weights(
     num_classes: int, class_weights: List[float]
-):
+) -> None:
 
     """
     Tests if the __init__ method of SegmentationEvaluator raises an error if the
@@ -121,8 +121,8 @@ def test_SegmentationEvaluator_inconsistent_class_weights(
     ],
 )
 def test_SegmentationEvaluator_inconsistent_num_classes(
-    num_classes, ground_truth, model_prediction
-):
+    num_classes: int, ground_truth: np.ndarray, model_prediction: np.ndarray
+) -> None:
     """
     Tests if the evaluate method of SegmentationEvaluator raises an error if the
     actual number of classes present in the ground_truth/prediction is not equal to
@@ -147,8 +147,8 @@ def test_SegmentationEvaluator_inconsistent_num_classes(
     ],
 )
 def test_SegmentationEvaluator_inconsistent_shapes(
-    num_classes, ground_truth, model_prediction
-):
+    num_classes: int, ground_truth: np.ndarray, model_prediction: np.ndarray
+) -> None:
     """
     Tests if the evaluate method of SegmentationEvaluator raises an error if the
     shapes of the ground_truth and model_prediction aren't the same
@@ -177,8 +177,8 @@ def test_SegmentationEvaluator_inconsistent_shapes(
     ],
 )
 def test_SegmentationEvaluator_not_a_3D_array(
-    num_classes, ground_truth, model_prediction
-):
+    num_classes: int, ground_truth: np.ndarray, model_prediction: np.ndarray
+) -> None:
     """
     Tests if the evaluate method of SegmentationEvaluator raises an error if the
     ground_truth or model_prediction isn't a 3D array
@@ -202,9 +202,8 @@ def test_SegmentationEvaluator_not_a_3D_array(
     ],
 )
 def test_SegmentationEvaluator_filter_quantities(
-    num_classes: int, quantity_filter: callable
-):
-
+    num_classes: int, quantity_filter: Callable[[str], bool]
+) -> None:
     np.random.seed(42)
     predictions, mask = get_random_prediction_and_mask((2, 256, 256), num_classes)
 
@@ -249,8 +248,10 @@ def test_SegmentationEvaluator_filter_quantities(
     ],
 )
 def test_SegmentationEvaluator_filter_figures(
-    num_classes: int, desired_number_of_figures: int, figure_filter: callable
-):
+    num_classes: int,
+    desired_number_of_figures: int,
+    figure_filter: Callable[[str], bool],
+) -> None:
 
     np.random.seed(42)
     predictions, mask = get_random_prediction_and_mask((2, 256, 256), num_classes)
