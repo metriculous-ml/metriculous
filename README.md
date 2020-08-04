@@ -1,5 +1,10 @@
 <p align="center">
-<a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+    <a href="https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks">
+        <img alt="Launch Binder" src="https://mybinder.org/badge_logo.svg">
+    </a>
+    <a href="https://github.com/ambv/black">
+        <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+    </a>
 </p>
 
 # __`metriculous`__
@@ -24,7 +29,7 @@ $ pip install git+https://github.com/metriculous-ml/metriculous.git@YourFavorite
 
 # Usage
 
-### Comparing Regression Models
+### Comparing Regression Models  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_regression.py)
 
 ```python
 import numpy as np
@@ -53,8 +58,8 @@ This will save an HTML file with common regression metrics and charts, and if yo
 ![Screenshot of Metriculous Regression Metrics](./imgs/metriculous_regression_screen_shot_table.png)
 ![Screenshot of Metriculous Regression Figures](./imgs/metriculous_regression_screen_shot_figures.png)
 
-### Comparing Classification Models
-For an example that evaluates and compares classifiers please refer to the [quickstart notebook for classification](notebooks/classification/quickstart.ipynb).
+### Comparing Classification Models [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py)
+For an example that evaluates and compares classifiers please refer to the [quickstart notebook for classification](notebooks/quickstart_classification.ipynb).
 
 
 # Development
