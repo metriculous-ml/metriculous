@@ -1,4 +1,4 @@
-## UNRELEASED - YYYY-MM-DD
+## 0.2.0 - 2020-08-04
 
 This release makes everything much better.
 
