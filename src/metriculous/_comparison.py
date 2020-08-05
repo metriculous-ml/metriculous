@@ -34,7 +34,14 @@ class Comparison:
         # Increase usable Jupyter notebook width when comparing many models or if specified by user
         if width is not None or len(self.evaluations) >= 4:
             _display_html_in_notebook(
-                f"<style>.container {{ width:{width or '90%'} !important; }}</style>"
+                f"""
+                <style>.container
+                    {{
+                        width:{width or '90%'} !important;
+                        margin: auto !important;
+                    }}
+                </style>"
+                """
             )
 
         # noinspection PyTypeChecker
