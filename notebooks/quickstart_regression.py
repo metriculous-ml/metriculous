@@ -45,6 +45,6 @@ metriculous.compare_regressors(
     ground_truth=ground_truth,
     model_predictions=[perfect_model, noisy_model, random_model, zero_model],
     model_names=["Perfect Model", "Noisy Model", "Random Model", "Zero Model"],
-).display(width="60%")
+).display()
 
 # %%
