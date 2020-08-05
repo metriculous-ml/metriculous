@@ -59,7 +59,7 @@ This will save an HTML file with common regression metrics and charts, and if yo
 ![Screenshot of Metriculous Regression Figures](./imgs/metriculous_regression_screen_shot_figures.png)
 
 ### Comparing Classification Models [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py)
-For an example that evaluates and compares classifiers please refer to the [quickstart notebook for classification](notebooks/quickstart_classification.ipynb).
+For an example that evaluates and compares classifiers, please refer to the [quickstart notebook for classification](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py).
 
 
 # Development
