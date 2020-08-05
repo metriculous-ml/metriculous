@@ -1,9 +1,42 @@
 <p align="center">
     <a href="https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks">
-        <img alt="Launch Binder" src="https://mybinder.org/badge_logo.svg">
+        <img 
+            src="https://mybinder.org/badge_logo.svg"
+            alt="Launch Binder"
+        />
     </a>
-    <a href="https://github.com/ambv/black">
-        <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+    <a href="https://github.com/metriculous-ml/metriculous/actions">
+        <img 
+            src="https://github.com/metriculous-ml/metriculous/workflows/CI/badge.svg?branch=master"
+            alt="Current GitHub Actions build status" 
+        />
+    </a>
+    <a href="http://mypy-lang.org/">
+        <img
+            src="http://www.mypy-lang.org/static/mypy_badge.svg"
+            alt="Checked with mypy" 
+        />
+    </a> 
+    <a href="https://badge.fury.io/py/metriculous">
+        <img 
+            src="https://badge.fury.io/py/metriculous.svg" 
+            alt="PyPI version" 
+        />
+    </a>
+    <img 
+        src="https://img.shields.io/pypi/pyversions/metriculous"
+        alt="PyPI - Python Version" 
+    >
+    <img 
+        src="https://img.shields.io/github/license/metriculous-ml/metriculous"
+        alt="License MIT"
+    >
+    <a>
+        <img
+            href="https://luminovo.ai/"
+            src="https://img.shields.io/badge/friends%20with-luminovo.AI-green"
+            alt="Friends with Luminovo.AI"
+        >
     </a>
 </p>
 
