@@ -3,14 +3,16 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+
   Tests:
-    name: ${{ matrix.os }} / ${{ matrix.python-version }}
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [Ubuntu, MacOS]
         python-version: [3.7, 3.8]
+
     steps:
       - uses: actions/checkout@v2
 
@@ -58,3 +60,40 @@ jobs:
       - name: Run `make test`
         shell: bash
         run: make test
+
+  Pip-Install-Commit:
+    name: pip-install-commit / ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [Ubuntu, MacOS, Windows]
+        python-version: [3.7, 3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete src
+        shell: bash
+        run: rm -rf src
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: which pip
+        shell: bash
+        run: which pip
+
+      - name: pip install this commit
+        shell: bash
+        run: pip install git+https://github.com/metriculous-ml/metriculous@${{ github.sha }}
+
+      - name: run quickstart_classification.py
+        shell: bash
+        run: python notebooks/quickstart_classification.py
+
+      - name: run quickstart_regression.py
+        shell: bash
+        run: python notebooks/quickstart_regression.py
