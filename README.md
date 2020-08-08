@@ -13,10 +13,10 @@
     </a>
     <a href="http://mypy-lang.org/">
         <img
-            src="http://www.mypy-lang.org/static/mypy_badge.svg"
+            src="https://img.shields.io/badge/mypy-checked-blue"
             alt="Checked with mypy" 
         />
-    </a> 
+    </a>
     <a href="https://badge.fury.io/py/metriculous">
         <img 
             src="https://badge.fury.io/py/metriculous.svg" 
