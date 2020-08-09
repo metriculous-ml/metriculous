@@ -17,9 +17,10 @@
 # # Quickstart for Regression
 
 # %% [markdown]
-# This notebook demonstrates the usage of the `RegressionEvaluator` to evaluate and compare regression models.
+# This notebook demonstrates how to use metriculous to evaluate and compare regression models.
 #
-# Here we use random numbers to mock a ground truth array of floats and three models with varying degrees of errors:
+# To keep the example concise, we use random numbers to mock a ground truth array of floats
+# and three models with varying degrees of errors:
 
 # %%
 import numpy as np
