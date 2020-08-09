@@ -184,7 +184,7 @@ class SegmentationEvaluator(Evaluator):
                 class_names=self.class_names,
                 title_rows=[model_name, class_distribution_figure_name],
                 sample_weights=None,
-            )
+            )()
             figure.yaxis.axis_label = "Number of Pixels"
             return figure
 
@@ -194,7 +194,7 @@ class SegmentationEvaluator(Evaluator):
             lazy_figures.append(
                 (
                     f"Heatmap for {class_name}",
-                    lambda: _bokeh_heatmap(
+                    _bokeh_heatmap(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_label=class_label,

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 from assertpy import assert_that
@@ -37,7 +37,7 @@ def _bokeh_output_histogram(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray] = None,
     x_label_rotation: Union[str, float] = "horizontal",
-) -> Figure:
+) -> Callable[[], Figure]:
     """
     Creates a scatter plot that contains the same information as a confusion matrix.
 
@@ -56,7 +56,7 @@ def _bokeh_output_histogram(
             Rotation of the class name labels.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
 
@@ -69,56 +69,60 @@ def _bokeh_output_histogram(
 
     assert_that(np.shape(y_true)).is_equal_to(np.shape(sample_weights))
 
-    p = plotting.figure(
-        x_range=class_names,
-        plot_height=350,
-        plot_width=350,
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-    )
-
     bins = np.arange(0, n + 1, 1)
     normalize = not np.allclose(sample_weights, 1.0)
 
-    # class distribution in prediction
-    p.vbar(
-        x=class_names,
-        top=np.histogram(y_pred, bins=bins, weights=sample_weights, density=normalize)[
-            0
-        ],
-        width=0.85,
-        color=DARK_BLUE,
-        alpha=HISTOGRAM_ALPHA,
-        legend_label="Prediction",
-    )
+    def figure() -> Figure:
+        p = plotting.figure(
+            x_range=class_names,
+            plot_height=350,
+            plot_width=350,
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+        )
 
-    # class distribution in ground truth
-    p.vbar(
-        x=class_names,
-        top=np.histogram(y_true, bins=bins, weights=sample_weights, density=normalize)[
-            0
-        ],
-        width=0.85,
-        alpha=0.6,
-        legend_label="Ground Truth",
-        fill_color=None,
-        line_color="black",
-        line_width=2.5,
-    )
+        # class distribution in prediction
+        p.vbar(
+            x=class_names,
+            top=np.histogram(
+                y_pred, bins=bins, weights=sample_weights, density=normalize
+            )[0],
+            width=0.85,
+            color=DARK_BLUE,
+            alpha=HISTOGRAM_ALPHA,
+            legend_label="Prediction",
+        )
 
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
+        # class distribution in ground truth
+        p.vbar(
+            x=class_names,
+            top=np.histogram(
+                y_true, bins=bins, weights=sample_weights, density=normalize
+            )[0],
+            width=0.85,
+            alpha=0.6,
+            legend_label="Ground Truth",
+            fill_color=None,
+            line_color="black",
+            line_width=2.5,
+        )
 
-    p.yaxis.axis_label = "Fraction of Instances" if normalize else "Number of Instances"
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
 
-    p.xaxis.major_label_orientation = x_label_rotation
+        p.yaxis.axis_label = (
+            "Fraction of Instances" if normalize else "Number of Instances"
+        )
 
-    p.xgrid.grid_line_color = None
+        p.xaxis.major_label_orientation = x_label_rotation
 
-    # prevent panning to empty regions
-    p.x_range.bounds = (-0.5, 0.5 + len(class_names))
+        p.xgrid.grid_line_color = None
 
-    return p
+        # prevent panning to empty regions
+        p.x_range.bounds = (-0.5, 0.5 + len(class_names))
+        return p
+
+    return figure
 
 
 def _bokeh_confusion_matrix(
@@ -128,7 +132,7 @@ def _bokeh_confusion_matrix(
     title_rows: Sequence[str],
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
-) -> Figure:
+) -> Callable[[], Figure]:
 
     """
     Creates a confusion matrix heatmap.
@@ -148,7 +152,7 @@ def _bokeh_confusion_matrix(
             Rotation of the y-axis class name labels.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
 
@@ -173,66 +177,70 @@ def _bokeh_confusion_matrix(
             normalized_by_pred.append(cm_normalized_by_pred[i, j])
             normalized_by_true.append(cm_normalized_by_true[i, j])
 
-    source = ColumnDataSource(
-        data={
-            "predicted": predicted,
-            "actual": actual,
-            "count": count,
-            "normalized": normalized,
-            "normalized_by_true": normalized_by_true,
-            "normalized_by_pred": normalized_by_pred,
-        }
-    )
+    def figure() -> Figure:
 
-    p = plotting.figure(tools=TOOLS, x_range=class_names, y_range=class_names)
-
-    mapper = LinearColorMapper(palette="Viridis256", low=0.0, high=1.0)
-
-    p.rect(
-        x="actual",
-        y="predicted",
-        width=0.95,
-        height=0.95,
-        source=source,
-        fill_color={"field": "normalized_by_true", "transform": mapper},
-        line_width=0,
-        line_color="black",
-    )
-
-    p.xaxis.axis_label = "Ground Truth"
-    p.yaxis.axis_label = "Prediction"
-
-    p.xaxis.major_label_orientation = x_label_rotation
-    p.yaxis.major_label_orientation = y_label_rotation
-
-    p.add_tools(
-        HoverTool(
-            tooltips=[
-                ("Predicted", "@predicted"),
-                ("Ground truth", "@actual"),
-                ("Count", "@count"),
-                ("Normalized", "@normalized"),
-                ("Normalized by prediction", "@normalized_by_pred"),
-                ("Normalize by ground truth", "@normalized_by_true"),
-            ]
+        source = ColumnDataSource(
+            data={
+                "predicted": predicted,
+                "actual": actual,
+                "count": count,
+                "normalized": normalized,
+                "normalized_by_true": normalized_by_true,
+                "normalized_by_pred": normalized_by_pred,
+            }
         )
-    )
 
-    color_bar = ColorBar(
-        color_mapper=mapper,
-        major_label_text_font_size=FONT_SIZE,
-        ticker=BasicTicker(desired_num_ticks=10),
-        formatter=PrintfTickFormatter(format="%.1f"),
-        label_standoff=5,
-        border_line_color=None,
-        location=(0, 0),
-    )
-    p.add_layout(color_bar, "right")
+        p = plotting.figure(tools=TOOLS, x_range=class_names, y_range=class_names)
 
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
+        mapper = LinearColorMapper(palette="Viridis256", low=0.0, high=1.0)
 
-    return p
+        p.rect(
+            x="actual",
+            y="predicted",
+            width=0.95,
+            height=0.95,
+            source=source,
+            fill_color={"field": "normalized_by_true", "transform": mapper},
+            line_width=0,
+            line_color="black",
+        )
+
+        p.xaxis.axis_label = "Ground Truth"
+        p.yaxis.axis_label = "Prediction"
+
+        p.xaxis.major_label_orientation = x_label_rotation
+        p.yaxis.major_label_orientation = y_label_rotation
+
+        p.add_tools(
+            HoverTool(
+                tooltips=[
+                    ("Predicted", "@predicted"),
+                    ("Ground truth", "@actual"),
+                    ("Count", "@count"),
+                    ("Normalized", "@normalized"),
+                    ("Normalized by prediction", "@normalized_by_pred"),
+                    ("Normalize by ground truth", "@normalized_by_true"),
+                ]
+            )
+        )
+
+        color_bar = ColorBar(
+            color_mapper=mapper,
+            major_label_text_font_size=FONT_SIZE,
+            ticker=BasicTicker(desired_num_ticks=10),
+            formatter=PrintfTickFormatter(format="%.1f"),
+            label_standoff=5,
+            border_line_color=None,
+            location=(0, 0),
+        )
+        p.add_layout(color_bar, "right")
+
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
+
+        return p
+
+    return figure
 
 
 def _bokeh_confusion_scatter(
@@ -242,7 +250,7 @@ def _bokeh_confusion_scatter(
     title_rows: Sequence[str],
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
-) -> Figure:
+) -> Callable[[], Figure]:
     """
     Creates a scatter plot that contains the same information as a confusion matrix.
 
@@ -261,68 +269,72 @@ def _bokeh_confusion_scatter(
             Rotation of the y-axis class name labels.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length!")
 
-    p = plotting.figure(
-        x_range=(-0.5, -0.5 + len(class_names)),
-        y_range=(-0.5, -0.5 + len(class_names)),
-        plot_height=350,
-        plot_width=350,
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        match_aspect=True,
-    )
+    def figure() -> Figure:
 
-    def noise() -> np.ndarray:
-        return (np.random.beta(1, 1, size=len(y_true)) - 0.5) * 0.6
+        p = plotting.figure(
+            x_range=(-0.5, -0.5 + len(class_names)),
+            y_range=(-0.5, -0.5 + len(class_names)),
+            plot_height=350,
+            plot_width=350,
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            match_aspect=True,
+        )
 
-    p.scatter(
-        x=y_true + noise(),
-        y=y_pred + noise(),
-        size=scatter_plot_circle_size(
-            num_points=len(y_true),
-            biggest=4.0,
-            smallest=1.0,
-            use_smallest_when_num_points_at_least=5000,
-        ),
-        color=DARK_BLUE,
-        fill_alpha=SCATTER_CIRCLES_FILL_ALPHA,
-        line_alpha=SCATTER_CIRCLES_LINE_ALPHA,
-    )
+        def noise() -> np.ndarray:
+            return (np.random.beta(1, 1, size=len(y_true)) - 0.5) * 0.6
 
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
+        p.scatter(
+            x=y_true + noise(),
+            y=y_pred + noise(),
+            size=scatter_plot_circle_size(
+                num_points=len(y_true),
+                biggest=4.0,
+                smallest=1.0,
+                use_smallest_when_num_points_at_least=5000,
+            ),
+            color=DARK_BLUE,
+            fill_alpha=SCATTER_CIRCLES_FILL_ALPHA,
+            line_alpha=SCATTER_CIRCLES_LINE_ALPHA,
+        )
 
-    p.xaxis.axis_label = "Ground Truth"
-    p.yaxis.axis_label = "Prediction"
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
 
-    arange = np.arange(len(class_names))
+        p.xaxis.axis_label = "Ground Truth"
+        p.yaxis.axis_label = "Prediction"
 
-    p.xaxis.ticker = arange
-    p.yaxis.ticker = arange
+        arange = np.arange(len(class_names))
 
-    p.xaxis.major_label_overrides = {i: name for i, name in enumerate(class_names)}
-    p.yaxis.major_label_overrides = {i: name for i, name in enumerate(class_names)}
+        p.xaxis.ticker = arange
+        p.yaxis.ticker = arange
 
-    p.xaxis.major_label_orientation = x_label_rotation
-    p.yaxis.major_label_orientation = y_label_rotation
+        p.xaxis.major_label_overrides = {i: name for i, name in enumerate(class_names)}
+        p.yaxis.major_label_overrides = {i: name for i, name in enumerate(class_names)}
 
-    # grid between classes, not at classes
-    p.xgrid.ticker = arange[0:-1] + 0.5
-    p.ygrid.ticker = arange[0:-1] + 0.5
+        p.xaxis.major_label_orientation = x_label_rotation
+        p.yaxis.major_label_orientation = y_label_rotation
 
-    p.xgrid.grid_line_width = 3
-    p.ygrid.grid_line_width = 3
+        # grid between classes, not at classes
+        p.xgrid.ticker = arange[0:-1] + 0.5
+        p.ygrid.ticker = arange[0:-1] + 0.5
 
-    # prevent panning to empty regions
-    p.x_range.bounds = (-0.5, -0.5 + len(class_names))
-    p.y_range.bounds = (-0.5, -0.5 + len(class_names))
+        p.xgrid.grid_line_width = 3
+        p.ygrid.grid_line_width = 3
 
-    return p
+        # prevent panning to empty regions
+        p.x_range.bounds = (-0.5, -0.5 + len(class_names))
+        p.y_range.bounds = (-0.5, -0.5 + len(class_names))
+
+        return p
+
+    return figure
 
 
 def _bokeh_roc_curve(
@@ -330,7 +342,7 @@ def _bokeh_roc_curve(
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Figure:
+) -> Callable[[], Figure]:
     """Plots an interactive receiver operator characteristic (ROC) curve.
 
     Args:
@@ -344,7 +356,7 @@ def _bokeh_roc_curve(
             Sequence of floats to modify the influence of individual samples.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
     assert y_true_binary.shape == y_pred_score.shape
@@ -357,47 +369,59 @@ def _bokeh_roc_curve(
         y_true=y_true_binary, y_score=y_pred_score, sample_weight=sample_weights
     )
 
-    source = ColumnDataSource(
-        data={"FPR": fpr, "TPR": tpr, "threshold": thresholds, "specificity": 1.0 - fpr}
-    )
-
-    p = plotting.figure(
-        plot_height=400,
-        plot_width=350,
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        # toolbar_location=None,  # hides entire toolbar
-        match_aspect=True,
-    )
-
-    p.xaxis.axis_label = "FPR"
-    p.yaxis.axis_label = "TPR"
-
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
-
-    curve = p.line(x="FPR", y="TPR", line_width=2, color=DARK_BLUE, source=source)
-    p.line(
-        x=[0.0, 1.0], y=[0.0, 1.0], line_alpha=0.75, color="grey", line_dash="dotted"
-    )
-
-    p.add_tools(
-        HoverTool(
-            # make sure there is no tool tip for the diagonal baseline
-            renderers=[curve],
-            tooltips=[
-                ("TPR", "@TPR"),
-                ("FPR", "@FPR"),
-                ("Sensitivity", "@TPR"),
-                ("Specificity", "@specificity"),
-                ("Threshold", "@threshold"),
-            ],
-            # display a tooltip whenever the cursor is vertically in line with a glyph
-            mode="vline",
+    def figure() -> Figure:
+        source = ColumnDataSource(
+            data={
+                "FPR": fpr,
+                "TPR": tpr,
+                "threshold": thresholds,
+                "specificity": 1.0 - fpr,
+            }
         )
-    )
 
-    return p
+        p = plotting.figure(
+            plot_height=400,
+            plot_width=350,
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            # toolbar_location=None,  # hides entire toolbar
+            match_aspect=True,
+        )
+
+        p.xaxis.axis_label = "FPR"
+        p.yaxis.axis_label = "TPR"
+
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
+
+        curve = p.line(x="FPR", y="TPR", line_width=2, color=DARK_BLUE, source=source)
+        p.line(
+            x=[0.0, 1.0],
+            y=[0.0, 1.0],
+            line_alpha=0.75,
+            color="grey",
+            line_dash="dotted",
+        )
+
+        p.add_tools(
+            HoverTool(
+                # make sure there is no tool tip for the diagonal baseline
+                renderers=[curve],
+                tooltips=[
+                    ("TPR", "@TPR"),
+                    ("FPR", "@FPR"),
+                    ("Sensitivity", "@TPR"),
+                    ("Specificity", "@specificity"),
+                    ("Threshold", "@threshold"),
+                ],
+                # display a tooltip whenever the cursor is vertically in line with a glyph
+                mode="vline",
+            )
+        )
+
+        return p
+
+    return figure
 
 
 def _bokeh_precision_recall_curve(
@@ -405,7 +429,7 @@ def _bokeh_precision_recall_curve(
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Figure:
+) -> Callable[[], Figure]:
     """
     Plots an interactive precision recall curve.
 
@@ -420,7 +444,7 @@ def _bokeh_precision_recall_curve(
             Sequence of floats to modify the influence of individual samples.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
     assert y_true_binary.shape == y_pred_score.shape
@@ -437,42 +461,46 @@ def _bokeh_precision_recall_curve(
     precision = precision[:-1]
     recall = recall[:-1]
 
-    p = plotting.figure(
-        plot_height=400,
-        plot_width=350,
-        x_range=(-0.05, 1.05),
-        y_range=(-0.05, 1.05),
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        # match_aspect=True,
-    )
+    def figure() -> Figure:
 
-    source = ColumnDataSource(
-        data={"precision": precision, "recall": recall, "threshold": thresholds}
-    )
-
-    # reminder: tpr == recall == sensitivity
-    p.line(x="recall", y="precision", line_width=2, source=source)
-
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
-
-    p.xaxis.axis_label = "Recall"
-    p.yaxis.axis_label = "Precision"
-
-    p.add_tools(
-        HoverTool(
-            tooltips=[
-                ("Precision", "@precision"),
-                ("Recall", "@recall"),
-                ("Threshold", "@threshold"),
-            ],
-            # display a tooltip whenever the cursor is vertically in line with a glyph
-            mode="vline",
+        p = plotting.figure(
+            plot_height=400,
+            plot_width=350,
+            x_range=(-0.05, 1.05),
+            y_range=(-0.05, 1.05),
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            # match_aspect=True,
         )
-    )
 
-    return p
+        source = ColumnDataSource(
+            data={"precision": precision, "recall": recall, "threshold": thresholds}
+        )
+
+        # reminder: tpr == recall == sensitivity
+        p.line(x="recall", y="precision", line_width=2, source=source)
+
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
+
+        p.xaxis.axis_label = "Recall"
+        p.yaxis.axis_label = "Precision"
+
+        p.add_tools(
+            HoverTool(
+                tooltips=[
+                    ("Precision", "@precision"),
+                    ("Recall", "@recall"),
+                    ("Threshold", "@threshold"),
+                ],
+                # display a tooltip whenever the cursor is vertically in line with a glyph
+                mode="vline",
+            )
+        )
+
+        return p
+
+    return figure
 
 
 def _bokeh_automation_rate_analysis(
@@ -480,7 +508,7 @@ def _bokeh_automation_rate_analysis(
     y_pred_proba: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Figure:
+) -> Callable[[], Figure]:
     """
     Plots various quantities over automation rate, where a single probability threshold
     is used for all classes to decide if we are confident enough to automate the
@@ -497,7 +525,7 @@ def _bokeh_automation_rate_analysis(
             Sequence of floats to modify the influence of individual samples.
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time it is called
 
     """
     # ----- check input -----
@@ -541,66 +569,71 @@ def _bokeh_automation_rate_analysis(
             )
         )
 
-    # ----- bokeh plot -----
-    p = plotting.figure(
-        plot_height=400,
-        plot_width=350,
-        x_range=(-0.05, 1.05),
-        y_range=(-0.05, 1.05),
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        # match_aspect=True,
-    )
+    def figure() -> Figure:
 
-    source = ColumnDataSource(
-        data={key: np.array(lst) for key, lst in chart_data.items()}
-    )
-
-    accuracy_line = p.line(
-        x="automation_rate",
-        y="accuracy",
-        line_width=2,
-        color=DARK_BLUE,
-        source=source,
-        legend_label="Accuracy",
-    )
-
-    p.line(
-        x="automation_rate",
-        y="threshold",
-        line_width=2,
-        color="grey",
-        source=source,
-        legend_label="Threshold",
-    )
-
-    # make sure something is visible if lines consist of just a single point
-    p.scatter(
-        x=source.data["automation_rate"][[0, -1]], y=source.data["accuracy"][[0, -1]]
-    )
-    p.scatter(
-        x=source.data["automation_rate"][[0, -1]],
-        y=source.data["threshold"][[0, -1]],
-        color="grey",
-    )
-
-    add_title_rows(p, title_rows)
-    apply_default_style(p)
-
-    p.xaxis.axis_label = "Automation Rate"
-    p.legend.location = "bottom_left"
-
-    p.add_tools(
-        HoverTool(
-            renderers=[accuracy_line],
-            tooltips=[
-                ("Accuracy", "@accuracy"),
-                ("Threshold", "@threshold"),
-                ("Automation Rate", "@automation_rate"),
-            ],
-            # display a tooltip whenever the cursor is vertically in line with a glyph
-            mode="vline",
+        # ----- bokeh plot -----
+        p = plotting.figure(
+            plot_height=400,
+            plot_width=350,
+            x_range=(-0.05, 1.05),
+            y_range=(-0.05, 1.05),
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            # match_aspect=True,
         )
-    )
 
-    return p
+        source = ColumnDataSource(
+            data={key: np.array(lst) for key, lst in chart_data.items()}
+        )
+
+        accuracy_line = p.line(
+            x="automation_rate",
+            y="accuracy",
+            line_width=2,
+            color=DARK_BLUE,
+            source=source,
+            legend_label="Accuracy",
+        )
+
+        p.line(
+            x="automation_rate",
+            y="threshold",
+            line_width=2,
+            color="grey",
+            source=source,
+            legend_label="Threshold",
+        )
+
+        # make sure something is visible if lines consist of just a single point
+        p.scatter(
+            x=source.data["automation_rate"][[0, -1]],
+            y=source.data["accuracy"][[0, -1]],
+        )
+        p.scatter(
+            x=source.data["automation_rate"][[0, -1]],
+            y=source.data["threshold"][[0, -1]],
+            color="grey",
+        )
+
+        add_title_rows(p, title_rows)
+        apply_default_style(p)
+
+        p.xaxis.axis_label = "Automation Rate"
+        p.legend.location = "bottom_left"
+
+        p.add_tools(
+            HoverTool(
+                renderers=[accuracy_line],
+                tooltips=[
+                    ("Accuracy", "@accuracy"),
+                    ("Threshold", "@threshold"),
+                    ("Automation Rate", "@automation_rate"),
+                ],
+                # display a tooltip whenever the cursor is vertically in line with a glyph
+                mode="vline",
+            )
+        )
+
+        return p
+
+    return figure

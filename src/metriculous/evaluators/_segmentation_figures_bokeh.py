@@ -1,10 +1,9 @@
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 from bokeh import plotting
 from bokeh.layouts import column
-from bokeh.models import Title
-from bokeh.plotting import Figure
+from bokeh.models import Column, Title
 
 TOOLS = "pan,box_zoom,reset"
 TOOLBAR_LOCATION = "right"
@@ -15,7 +14,7 @@ def _bokeh_heatmap(
     y_pred: np.ndarray,
     class_label: int,
     class_name: Optional[str] = None,
-) -> Figure:
+) -> Callable[[], Column]:
     """
     Creates heatmaps of the predictions and ground_truth
     corresponding to the class_label
@@ -33,7 +32,7 @@ def _bokeh_heatmap(
             Class Name corresponding to the class_label
 
     Returns:
-        A bokeh figure
+        A callable that returns a fresh bokeh figure each time is is called
 
     """
 
@@ -61,49 +60,52 @@ def _bokeh_heatmap(
         (y_true == class_label).astype(np.uint8), axis=0
     )
 
-    p1 = plotting.figure(
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        width=y_true.shape[2],
-        height=y_true.shape[1],
-    )
-    p1.x_range.range_padding = p1.y_range.range_padding = 0
-    p1.toolbar.logo = None
+    def figure() -> Column:
+        p1 = plotting.figure(
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            width=y_true.shape[2],
+            height=y_true.shape[1],
+        )
+        p1.x_range.range_padding = p1.y_range.range_padding = 0
+        p1.toolbar.logo = None
 
-    p1.image(
-        image=[mean_activation_predictions],
-        x=0,
-        y=0,
-        dw=y_true.shape[2],
-        dh=y_true.shape[1],
-    )
+        p1.image(
+            image=[mean_activation_predictions],
+            x=0,
+            y=0,
+            dw=y_true.shape[2],
+            dh=y_true.shape[1],
+        )
 
-    p1.add_layout(Title(text="Ground Truth", align="center"), "below")
-    p1.add_layout(
-        Title(text=f"Heatmap for {class_name}", align="center"), place="above"
-    )
-    p1.axis.visible = False
+        p1.add_layout(Title(text="Ground Truth", align="center"), "below")
+        p1.add_layout(
+            Title(text=f"Heatmap for {class_name}", align="center"), place="above"
+        )
+        p1.axis.visible = False
 
-    p2 = plotting.figure(
-        tools=TOOLS,
-        toolbar_location=TOOLBAR_LOCATION,
-        width=y_true.shape[2],
-        height=y_true.shape[1],
-        x_range=p1.x_range,
-    )
-    p2.x_range.range_padding = p2.y_range.range_padding = 0
-    p2.toolbar.logo = None
+        p2 = plotting.figure(
+            tools=TOOLS,
+            toolbar_location=TOOLBAR_LOCATION,
+            width=y_true.shape[2],
+            height=y_true.shape[1],
+            x_range=p1.x_range,
+        )
+        p2.x_range.range_padding = p2.y_range.range_padding = 0
+        p2.toolbar.logo = None
 
-    p2.image(
-        image=[mean_activation_ground_truth],
-        x=0,
-        y=y_true.shape[1] + padding,
-        dw=y_true.shape[2],
-        dh=y_true.shape[1],
-    )
+        p2.image(
+            image=[mean_activation_ground_truth],
+            x=0,
+            y=y_true.shape[1] + padding,
+            dw=y_true.shape[2],
+            dh=y_true.shape[1],
+        )
 
-    p2.add_layout(Title(text="Prediction", align="center"), "below")
+        p2.add_layout(Title(text="Prediction", align="center"), "below")
 
-    p2.axis.visible = False
+        p2.axis.visible = False
 
-    return column(p1, p2)
+        return column(p1, p2)
+
+    return figure

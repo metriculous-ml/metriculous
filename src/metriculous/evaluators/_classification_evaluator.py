@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import numpy.testing as npt
@@ -201,7 +201,8 @@ class ClassificationEvaluator(
         maybe_sample_weights: Optional[np.ndarray],
         class_names: Sequence[str],
     ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
-        lazy_figures = []
+
+        lazy_figures: List[Tuple[str, Callable[[], Figure]]] = []
 
         y_true = data.target.argmaxes
         y_true_one_hot = data.target.argmaxes_one_hot
@@ -214,7 +215,7 @@ class ClassificationEvaluator(
             lazy_figures.append(
                 (
                     "Class Distribution",
-                    lambda: _bokeh_output_histogram(
+                    _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=class_names,
@@ -228,7 +229,7 @@ class ClassificationEvaluator(
             lazy_figures.append(
                 (
                     "Unweighted Class Distribution",
-                    lambda: _bokeh_output_histogram(
+                    _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=class_names,
@@ -242,7 +243,7 @@ class ClassificationEvaluator(
             lazy_figures.append(
                 (
                     "Weighted Class Distribution",
-                    lambda: _bokeh_output_histogram(
+                    _bokeh_output_histogram(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=class_names,
@@ -258,7 +259,7 @@ class ClassificationEvaluator(
             lazy_figures.append(
                 (
                     "Confusion Scatter Plot",
-                    lambda: _bokeh_confusion_scatter(
+                    _bokeh_confusion_scatter(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=class_names,
@@ -274,7 +275,7 @@ class ClassificationEvaluator(
             lazy_figures.append(
                 (
                     "Confusion Matrix",
-                    lambda: _bokeh_confusion_matrix(
+                    _bokeh_confusion_matrix(
                         y_true=y_true,
                         y_pred=y_pred,
                         class_names=class_names,
@@ -289,7 +290,7 @@ class ClassificationEvaluator(
         lazy_figures.append(
             (
                 "Automation Rate Analysis",
-                lambda: _bokeh_automation_rate_analysis(
+                _bokeh_automation_rate_analysis(
                     y_target_one_hot=y_true_one_hot,
                     y_pred_proba=y_pred_proba,
                     title_rows=[model_name, "Automation Rate Analysis"],
@@ -304,7 +305,7 @@ class ClassificationEvaluator(
                 lazy_figures.append(
                     (
                         f"ROC {class_name} vs Rest",
-                        lambda: _bokeh_roc_curve(
+                        _bokeh_roc_curve(
                             y_true_binary=(y_true == class_index),
                             y_pred_score=y_pred_proba[:, class_index],
                             title_rows=[model_name, f"ROC {class_name} vs Rest"],
@@ -319,7 +320,7 @@ class ClassificationEvaluator(
                 lazy_figures.append(
                     (
                         f"PR Curve {class_name} vs Rest",
-                        lambda: _bokeh_precision_recall_curve(
+                        _bokeh_precision_recall_curve(
                             y_true_binary=(y_true == class_index),
                             y_pred_score=y_pred_proba[:, class_index],
                             title_rows=[model_name, f"PR Curve {class_name} vs Rest"],
