@@ -40,6 +40,12 @@ class ProbabilityMatrix:
         self.argmaxes = np.argmax(self.proba_matrix, axis=1)  # type: ignore
         self.argmaxes_one_hot = np.eye(self.n_classes)[self.argmaxes]
 
+    @classmethod
+    def from_ints(
+        cls, class_integers: Integers, num_classes: int
+    ) -> "ProbabilityMatrix":
+        return ProbabilityMatrix(distributions=np.eye(num_classes)[class_integers])
+
     @staticmethod
     def _validate_input(probability_array: np.ndarray) -> None:
         assert isinstance(probability_array, np.ndarray)

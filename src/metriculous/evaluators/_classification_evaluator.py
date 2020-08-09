@@ -25,8 +25,13 @@ from ._classification_utils import (
     check_normalization,
 )
 
+ClassificationGroundTruth = Union[np.ndarray, Sequence[Sequence[float]], Sequence[int]]
+ClassificationPrediction = Union[np.ndarray, Sequence[Sequence[float]]]
 
-class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
+
+class ClassificationEvaluator(
+    Evaluator[ClassificationGroundTruth, ClassificationPrediction]
+):
     """
     Default Evaluator implementation that serves well for most classification problems.
 
@@ -108,8 +113,8 @@ class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
 
     def evaluate(
         self,
-        ground_truth: np.ndarray,
-        model_prediction: np.ndarray,
+        ground_truth: ClassificationGroundTruth,
+        model_prediction: ClassificationPrediction,
         model_name: str,
         sample_weights: Optional[Sequence[float]] = None,
     ) -> Evaluation:
@@ -119,7 +124,10 @@ class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
 
         Args:
             ground_truth:
-                2d array where each row is a probability distribution.
+                The ground truth, expressed by one of the following:
+                * A 1d array of class integers
+                * A 2d array of shape (num_sample, num_classes) where each row is a probability
+                  distribution. This covers the special case of one-hot encoded labels.
             model_prediction:
                 2d array where each row is a probability distribution.
             model_name:
@@ -135,11 +143,7 @@ class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
         """
 
         # === Preparations =============================================================
-        # give variables more specific names
-        data = ClassificationData(
-            target=ProbabilityMatrix(ground_truth),
-            pred=ProbabilityMatrix(model_prediction),
-        )
+        data = check_input(ground_truth=ground_truth, model_prediction=model_prediction)
 
         class_names: Sequence[
             str
@@ -531,6 +535,38 @@ class ClassificationEvaluator(Evaluator[np.ndarray, np.ndarray]):
         quantities.append(Quantity("Max Probability", y_pred_proba.max()))
         quantities.append(Quantity("Min Probability", y_pred_proba.min()))
         return quantities
+
+
+def check_input(
+    ground_truth: ClassificationGroundTruth, model_prediction: ClassificationPrediction
+) -> ClassificationData:
+
+    pred = ProbabilityMatrix(model_prediction)
+    ground_truth_array = np.asarray(ground_truth)
+    if ground_truth_array.ndim == 1:
+        if not issubclass(ground_truth_array.dtype.type, np.integer):
+            raise TypeError(
+                "Classification ground truth must be an 2d array of probability distributions"
+                " or a 1d array of class integers. The one-dimensional input you provided does"
+                " not seem to consist of integers."
+            )
+        max_int = max(ground_truth_array)
+        if max_int > pred.n_classes - 1:
+            raise ValueError(
+                f"The ground truth class integers you provided contain the value {max_int},"
+                f" but the model predictions you provided seem to indicate that only"
+                f" {pred.n_classes} classes exist in this classification problem."
+            )
+        return ClassificationData(
+            target=ProbabilityMatrix.from_ints(
+                ground_truth_array, num_classes=(pred.n_classes)
+            ),
+            pred=pred,
+        )
+    else:
+        return ClassificationData(
+            target=ProbabilityMatrix(ground_truth_array), pred=pred
+        )
 
 
 def _sample_weights(

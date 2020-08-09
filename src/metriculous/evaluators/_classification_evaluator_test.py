@@ -2,11 +2,18 @@ from dataclasses import replace
 from typing import Callable, List, Optional, Sequence
 
 import numpy as np
+import numpy.testing as npt
 import pytest
 
 from .._evaluation import Evaluation, Quantity
 from ..evaluators import ClassificationEvaluator
 from ..test_resources import noisy_prediction
+from ._classification_evaluator import (
+    ClassificationGroundTruth,
+    ClassificationPrediction,
+    check_input,
+)
+from ._classification_utils import ClassificationData
 
 
 def random_targets_one_hot(num_classes: int, num_samples: int) -> np.ndarray:
@@ -382,4 +389,43 @@ def test_ClassificationEvaluator_exception_when_passing_distribution_and_weights
     assert str(exception_info.value) == (
         "Cannot use `sample_weights` with ClassificationEvaluator that"
         " was initialized with `simulated_class_distribution`."
+    )
+
+
+@pytest.mark.parametrize("convert_ground_truth", [list, tuple, np.array, np.asarray])
+@pytest.mark.parametrize("convert_prediction", [list, tuple, np.array, np.asarray])
+@pytest.mark.parametrize(
+    "ground_truth, model_prediction",
+    [
+        ([1, 0, 2], [[0.3, 0.2, 0.5], [0.1, 0.2, 0.7], [0.6, 0.4, 0.0]]),
+        (
+            [[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+            [[0.3, 0.2, 0.5], [0.1, 0.2, 0.7], [0.6, 0.4, 0.0]],
+        ),
+        (
+            [[0, 1, 0], [1, 0, 0], [0, 0, 1]],
+            [[0.3, 0.2, 0.5], [0.1, 0.2, 0.7], [0.6, 0.4, 0.0]],
+        ),
+    ],
+)
+def test_check_input(
+    convert_ground_truth: Callable,
+    convert_prediction: Callable,
+    ground_truth: ClassificationGroundTruth,
+    model_prediction: ClassificationPrediction,
+) -> None:
+    classification_data = check_input(
+        ground_truth=convert_ground_truth(ground_truth),
+        model_prediction=convert_prediction(model_prediction),
+    )
+    assert isinstance(classification_data, ClassificationData)
+
+    npt.assert_allclose(
+        classification_data.target.proba_matrix,
+        np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]),
+    )
+
+    npt.assert_allclose(
+        classification_data.pred.proba_matrix,
+        np.array([[0.3, 0.2, 0.5], [0.1, 0.2, 0.7], [0.6, 0.4, 0.0]]),
     )

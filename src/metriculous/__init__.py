@@ -1,6 +1,4 @@
-from typing import Callable, Optional, Sequence, Union
-
-import numpy as np
+from typing import Callable, Optional, Sequence
 
 from metriculous import evaluators, utilities
 from metriculous._comparison import (  # noqa (Comparator deprecated)
@@ -10,6 +8,10 @@ from metriculous._comparison import (  # noqa (Comparator deprecated)
 )
 from metriculous._evaluation import Evaluation, Evaluator, Quantity
 from metriculous.evaluators import ClassificationEvaluator, RegressionEvaluator
+from metriculous.evaluators._classification_evaluator import (
+    ClassificationGroundTruth,
+    ClassificationPrediction,
+)
 from metriculous.evaluators._regression_figures_bokeh import DEFAULT_N_HISTOGRAM_BINS
 from metriculous.evaluators._regression_utils import Floats
 
@@ -29,8 +31,8 @@ __all__ = [
 
 
 def compare_classifiers(
-    ground_truth: Union[np.ndarray, Sequence[Sequence[float]]],
-    model_predictions: Sequence[Union[np.ndarray, Sequence[Sequence[float]]]],
+    ground_truth: ClassificationGroundTruth,
+    model_predictions: Sequence[ClassificationPrediction],
     model_names: Optional[Sequence[str]] = None,
     sample_weights: Optional[Sequence[float]] = None,
     class_names: Optional[Sequence[str]] = None,
@@ -44,6 +46,7 @@ def compare_classifiers(
     class_label_rotation_x: str = "horizontal",
     class_label_rotation_y: str = "vertical",
 ) -> Comparison:
+
     return compare(
         evaluator=ClassificationEvaluator(
             class_names=class_names,
@@ -57,8 +60,8 @@ def compare_classifiers(
             class_label_rotation_x=class_label_rotation_x,
             class_label_rotation_y=class_label_rotation_y,
         ),
-        ground_truth=np.asarray(ground_truth),
-        model_predictions=[np.asarray(proba_dist) for proba_dist in model_predictions],
+        ground_truth=ground_truth,
+        model_predictions=model_predictions,
         model_names=model_names,
         sample_weights=sample_weights,
     )

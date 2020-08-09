@@ -68,6 +68,14 @@ def test_imports_prefix_style() -> None:
         ],
     )
 
+    _ = met.compare_classifiers(
+        ground_truth=[0, 1, 2],
+        model_predictions=[
+            [[0.2, 0.2, 0.6], [0.3, 0.4, 0.3], [0.3, 0.4, 0.3]],
+            [[0.3, 0.0, 0.7], [0.1, 0.1, 0.8], [0.1, 0.1, 0.8]],
+        ],
+    )
+
     _ = met.compare_regressors(
         ground_truth=[0.5, 42.0, -3],
         model_predictions=[[0.5, 42.0, -3], [0.5, 42.0, -3]],
