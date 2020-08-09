@@ -10,6 +10,7 @@ THIS_DIR = Path(__file__).parent
     "path_to_python_file",
     [
         "quickstart_classification.py",
+        "quickstart_classification_iris.py",
         "quickstart_regression.py",
         "quickstart_segmentation.py",
     ],
