@@ -1,0 +1,51 @@
+name: Check-PyPI-Release
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # every full hour
+  workflow_dispatch:
+    # no parameters
+  push:
+    # no parameters
+
+jobs:
+  Check-PyPI-Release:
+    name: pip-install-metriculous / ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [Ubuntu, MacOS, Windows]
+        python-version: [3.7, 3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete src
+        shell: bash
+        run: rm -rf src
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: which pip
+        shell: bash
+        run: which pip
+
+      - name: pip install metriculous
+        shell: bash
+        run: pip install metriculous
+
+      - name: pip freeze | grep metriculous
+        shell: bash
+        run: pip freeze | grep metriculous
+
+      - name: run quickstart_classification.py
+        shell: bash
+        run: python notebooks/quickstart_classification.py
+
+      - name: run quickstart_regression.py
+        shell: bash
+        run: python notebooks/quickstart_regression.py
