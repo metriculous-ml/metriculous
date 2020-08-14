@@ -60,9 +60,9 @@ $ pip install git+https://github.com/metriculous-ml/metriculous.git@YourFavorite
 ```
 
 
-# Usage
-
-### Comparing Regression Models  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_regression.py)
+# Comparing Regression Models  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_regression.py)
+<details><summary>Click to see more code</summary>
+<p>
 
 ```python
 import numpy as np
@@ -75,7 +75,11 @@ perfect_model = ground_truth
 noisy_model = ground_truth + 0.1 * np.random.randn(*ground_truth.shape)
 random_model = np.random.randn(*ground_truth.shape)
 zero_model = np.zeros_like(ground_truth)
+```
+</p>
+</details>
 
+```python
 import metriculous
 
 metriculous.compare_regressors(
@@ -91,8 +95,55 @@ This will save an HTML file with common regression metrics and charts, and if yo
 ![Screenshot of Metriculous Regression Metrics](./imgs/metriculous_regression_screen_shot_table.png)
 ![Screenshot of Metriculous Regression Figures](./imgs/metriculous_regression_screen_shot_figures.png)
 
-### Comparing Classification Models [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py)
-For an example that evaluates and compares classifiers, please refer to the [quickstart notebook for classification](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py).
+# Comparing Classification Models [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py)
+<details><summary>Click to see more code</summary>
+<p>
+
+```python
+import numpy as np
+
+
+def normalize(array2d: np.ndarray) -> np.ndarray:
+    return array2d / array2d.sum(axis=1, keepdims=True)
+
+
+class_names = ["Cat", "Dog", "Pig"]
+num_classes = len(class_names)
+num_samples = 500
+
+# Mock ground truth
+ground_truth = np.random.choice(range(num_classes), size=num_samples, p=[0.5, 0.4, 0.1])
+
+# Mock model predictions
+perfect_model = np.eye(num_classes)[ground_truth]
+noisy_model = normalize(
+    perfect_model + 2 * np.random.random((num_samples, num_classes))
+)
+random_model = normalize(np.random.random((num_samples, num_classes)))
+```
+
+</p>
+</details>
+
+```python
+import metriculous
+
+metriculous.compare_classifiers(
+    ground_truth=ground_truth,
+    model_predictions=[perfect_model, noisy_model, random_model],
+    model_names=["Perfect Model", "Noisy Model", "Random Model"],
+    class_names=class_names,
+    one_vs_all_figures=True,
+).display()
+```
+
+![Screenshot of Metriculous Classification Table](./imgs/metriculous_classification_table.png)
+
+![Screenshot of Metriculous Classification Figures](./imgs/metriculous_classification_figures_1.png)
+
+![Screenshot of Metriculous Classification Figures](./imgs/metriculous_classification_figures_2.png)
+
+![Screenshot of Metriculous Classification Figures](./imgs/metriculous_classification_figures_3.png)
 
 
 # Development
