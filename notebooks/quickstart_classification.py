@@ -1,7 +1,6 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -14,7 +13,7 @@
 # ---
 
 # %% [markdown]
-# # Quickstart for Regression
+# # Quickstart for Classification
 
 # %% [markdown]
 # This notebook demonstrates how to use metriculous to evaluate and compare classification models.
