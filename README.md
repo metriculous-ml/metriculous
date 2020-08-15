@@ -41,7 +41,9 @@
 </p>
 
 # __`metriculous`__
-Unstable python library with utilities to measure, visualize and compare statistical properties of machine learning models. Breaking improvements to be expected.
+
+Measure, visualize, and compare machine learning model performance without the usual boilerplate.
+Breaking API improvements to be expected.
 
 
 # Installation
@@ -52,11 +54,6 @@ $ pip install metriculous
 Or, for the latest unreleased version:
 ```console
 $ pip install git+https://github.com/metriculous-ml/metriculous.git
-```
-
-Or, to avoid getting surprised by breaking changes:
-```console
-$ pip install git+https://github.com/metriculous-ml/metriculous.git@YourFavoriteCommit
 ```
 
 
@@ -94,6 +91,7 @@ This will save an HTML file with common regression metrics and charts, and if yo
 
 ![Screenshot of Metriculous Regression Metrics](./imgs/metriculous_regression_screen_shot_table.png)
 ![Screenshot of Metriculous Regression Figures](./imgs/metriculous_regression_screen_shot_figures.png)
+
 
 # Comparing Classification Models [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/metriculous-ml/metriculous/master?filepath=notebooks%2Fquickstart_classification.py)
 <details><summary>Click to see more code</summary>
