@@ -181,12 +181,12 @@ def _bokeh_confusion_matrix(
 
         source = ColumnDataSource(
             data={
-                "predicted": predicted,
-                "actual": actual,
-                "count": count,
-                "normalized": normalized,
-                "normalized_by_true": normalized_by_true,
-                "normalized_by_pred": normalized_by_pred,
+                "predicted": np.array(predicted),
+                "actual": np.array(actual),
+                "count": np.array(count),
+                "normalized": np.array(normalized),
+                "normalized_by_pred": np.array(normalized_by_pred),
+                "normalized_by_true": np.array(normalized_by_true),
             }
         )
 
@@ -219,7 +219,7 @@ def _bokeh_confusion_matrix(
                     ("Count", "@count"),
                     ("Normalized", "@normalized"),
                     ("Normalized by prediction", "@normalized_by_pred"),
-                    ("Normalize by ground truth", "@normalized_by_true"),
+                    ("Normalized by ground truth", "@normalized_by_true"),
                 ]
             )
         )
