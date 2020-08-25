@@ -20,7 +20,7 @@
 # This notebook demonstrates how to use metriculous to evaluate and compare regression models.
 #
 # To keep the example concise, we use random numbers to mock a ground truth array of floats
-# and three models with varying degrees of errors:
+# and four models with varying degrees of errors:
 
 # %%
 import numpy as np
