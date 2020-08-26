@@ -1,7 +1,9 @@
 from typing import Sequence
 
+from bokeh.embed import file_html
 from bokeh.models import Div, Title
 from bokeh.plotting import Figure
+from bokeh.resources import CDN
 
 TOOLS = "pan,box_zoom,wheel_zoom,reset"
 TOOLBAR_LOCATION = "right"
@@ -74,3 +76,14 @@ def scatter_plot_circle_size(
     assert biggest >= smallest
     slope = (biggest - smallest) / use_smallest_when_num_points_at_least
     return max(smallest, biggest - slope * num_points)
+
+
+def check_that_all_figures_can_be_rendered(figures: Sequence[Figure]) -> None:
+    """ Generates HTML for each figure.
+
+    In some cases this reveals issues that might not be noticed if we just instantiated the figures
+    without showing them or generating their HTML representations.
+    """
+    for f in figures:
+        html = file_html(f, resources=CDN)
+        assert isinstance(html, str)

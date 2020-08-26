@@ -39,7 +39,7 @@ def _bokeh_output_histogram(
     x_label_rotation: Union[str, float] = "horizontal",
 ) -> Callable[[], Figure]:
     """
-    Creates a scatter plot that contains the same information as a confusion matrix.
+    Histogram of ground truth and prediction.
 
     Args:
         y_true:

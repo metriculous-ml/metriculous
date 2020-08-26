@@ -8,6 +8,7 @@ import pytest
 from .._evaluation import Evaluation, Quantity
 from ..evaluators import ClassificationEvaluator
 from ..test_resources import noisy_prediction
+from ._bokeh_utils import check_that_all_figures_can_be_rendered
 from ._classification_evaluator import (
     ClassificationGroundTruth,
     ClassificationPrediction,
@@ -96,6 +97,8 @@ def test_ClassificationEvaluator(
 
     assert isinstance(evaluation, Evaluation)
     assert evaluation.model_name == "MockModel"
+
+    check_that_all_figures_can_be_rendered(figures=evaluation.figures())
 
 
 @pytest.mark.parametrize("num_samples", [100, 200, 999])
@@ -258,6 +261,8 @@ def test_ClassificationEvaluator_perfect_prediction(
             assert isinstance(actual.value, float)
             np.testing.assert_allclose(actual.value, expected.value)
 
+    check_that_all_figures_can_be_rendered(evaluation.figures())
+
 
 @pytest.mark.parametrize("num_samples", [100, 200])
 @pytest.mark.parametrize(
@@ -354,6 +359,8 @@ def test_ClassificationEvaluator_filter_figures(
 
     # check number of figures
     assert len(evaluation_filtered.lazy_figures) == desired_number_of_figures
+
+    check_that_all_figures_can_be_rendered(evaluation_filtered.figures())
 
 
 @pytest.mark.parametrize("num_samples", [100, 200])
