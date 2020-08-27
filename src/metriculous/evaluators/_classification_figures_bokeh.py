@@ -3,19 +3,13 @@ from typing import Callable, Dict, List, Optional, Sequence, Union
 import numpy as np
 from assertpy import assert_that
 from bokeh import plotting
-from bokeh.models import (
-    BasicTicker,
-    ColorBar,
-    ColumnDataSource,
-    HoverTool,
-    LinearColorMapper,
-    PrintfTickFormatter,
-)
+from bokeh.models import ColumnDataSource, HoverTool, LinearColorMapper
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 from sklearn.metrics import accuracy_score
 
 from metriculous.evaluators._bokeh_utils import (
+    BACKGROUND_COLOR,
     DARK_BLUE,
     FONT_SIZE,
     HISTOGRAM_ALPHA,
@@ -25,6 +19,7 @@ from metriculous.evaluators._bokeh_utils import (
     TOOLS,
     add_title_rows,
     apply_default_style,
+    color_palette,
     scatter_plot_circle_size,
 )
 from metriculous.evaluators._classification_utils import check_normalization
@@ -38,8 +33,7 @@ def _bokeh_output_histogram(
     sample_weights: Optional[np.ndarray] = None,
     x_label_rotation: Union[str, float] = "horizontal",
 ) -> Callable[[], Figure]:
-    """
-    Histogram of ground truth and prediction.
+    """ Histogram of ground truth and prediction.
 
     Args:
         y_true:
@@ -133,9 +127,7 @@ def _bokeh_confusion_matrix(
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
 ) -> Callable[[], Figure]:
-
-    """
-    Creates a confusion matrix heatmap.
+    """ Confusion matrix heatmap.
 
     Args:
         y_true:
@@ -156,28 +148,33 @@ def _bokeh_confusion_matrix(
 
     """
 
-    cm = sklmetrics.confusion_matrix(y_true, y_pred)
-    cm_normalized = cm.astype("float") / cm.sum()
-    cm_normalized_by_pred = cm.astype("float") / cm.sum(axis=0, keepdims=True)
-    cm_normalized_by_true = cm.astype("float") / cm.sum(axis=1, keepdims=True)
-
-    predicted = list()
-    actual = list()
-    count = list()
-    normalized = list()
-    normalized_by_pred = list()
-    normalized_by_true = list()
-
-    for i, i_class in enumerate(class_names):
-        for j, j_class in enumerate(class_names):
-            predicted.append(j_class)
-            actual.append(i_class)
-            count.append(cm[i, j])
-            normalized.append(cm_normalized[i, j])
-            normalized_by_pred.append(cm_normalized_by_pred[i, j])
-            normalized_by_true.append(cm_normalized_by_true[i, j])
-
     def figure() -> Figure:
+        cm = sklmetrics.confusion_matrix(y_true, y_pred)
+        cm_normalized = cm.astype("float") / cm.sum()
+        cm_normalized_by_pred = cm.astype("float") / cm.sum(axis=0, keepdims=True)
+        cm_normalized_by_true = cm.astype("float") / cm.sum(axis=1, keepdims=True)
+
+        predicted = list()
+        actual = list()
+        count = list()
+        normalized = list()
+        normalized_by_pred = list()
+        normalized_by_true = list()
+
+        for i, i_class in enumerate(class_names):
+            for j, j_class in enumerate(class_names):
+                predicted.append(j_class)
+                actual.append(i_class)
+                count.append(cm[i, j])
+                normalized.append(cm_normalized[i, j])
+                normalized_by_pred.append(cm_normalized_by_pred[i, j])
+                normalized_by_true.append(cm_normalized_by_true[i, j])
+
+        # Compute an upper bound for the number of samples in any point in the matrix in any model
+        # in the comparison. Exploit the fact that even though models in a comparison may have
+        # different predictions, they share the same ground truth.
+        upper_bound = max(cm.sum(axis=1))
+        white_text_threshold = upper_bound / 2.0
 
         source = ColumnDataSource(
             data={
@@ -187,22 +184,39 @@ def _bokeh_confusion_matrix(
                 "normalized": np.array(normalized),
                 "normalized_by_pred": np.array(normalized_by_pred),
                 "normalized_by_true": np.array(normalized_by_true),
+                "text_color": [
+                    "white" if c > white_text_threshold else "black" for c in count
+                ],
             }
         )
 
         p = plotting.figure(tools=TOOLS, x_range=class_names, y_range=class_names)
 
-        mapper = LinearColorMapper(palette="Viridis256", low=0.0, high=1.0)
+        mapper = LinearColorMapper(
+            palette=color_palette(BACKGROUND_COLOR, DARK_BLUE, n=256),
+            low=0.0,
+            high=upper_bound,
+        )
 
-        p.rect(
+        rect = p.rect(
+            source=source,
             x="actual",
             y="predicted",
-            width=0.95,
-            height=0.95,
+            width=0.96,
+            height=0.96,
+            fill_color={"field": "count", "transform": mapper},
+            line_color=None,
+        )
+
+        p.text(
             source=source,
-            fill_color={"field": "normalized_by_true", "transform": mapper},
-            line_width=0,
-            line_color="black",
+            x="actual",
+            y="predicted",
+            text="count",
+            text_color="text_color",
+            text_font_size=FONT_SIZE if len(class_names) < 20 else "6pt",
+            text_baseline="middle",
+            text_align="center",
         )
 
         p.xaxis.axis_label = "Ground Truth"
@@ -213,6 +227,7 @@ def _bokeh_confusion_matrix(
 
         p.add_tools(
             HoverTool(
+                renderers=[rect],
                 tooltips=[
                     ("Predicted", "@predicted"),
                     ("Ground truth", "@actual"),
@@ -220,23 +235,13 @@ def _bokeh_confusion_matrix(
                     ("Normalized", "@normalized"),
                     ("Normalized by prediction", "@normalized_by_pred"),
                     ("Normalized by ground truth", "@normalized_by_true"),
-                ]
+                ],
             )
         )
 
-        color_bar = ColorBar(
-            color_mapper=mapper,
-            major_label_text_font_size=FONT_SIZE,
-            ticker=BasicTicker(desired_num_ticks=10),
-            formatter=PrintfTickFormatter(format="%.1f"),
-            label_standoff=5,
-            border_line_color=None,
-            location=(0, 0),
-        )
-        p.add_layout(color_bar, "right")
-
         add_title_rows(p, title_rows)
         apply_default_style(p)
+        p.background_fill_color = "white"
 
         return p
 
@@ -251,8 +256,7 @@ def _bokeh_confusion_scatter(
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
 ) -> Callable[[], Figure]:
-    """
-    Creates a scatter plot that contains the same information as a confusion matrix.
+    """ Scatter plot that contains the same information as a confusion matrix.
 
     Args:
         y_true:
@@ -343,7 +347,7 @@ def _bokeh_roc_curve(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
 ) -> Callable[[], Figure]:
-    """Plots an interactive receiver operator characteristic (ROC) curve.
+    """ Interactive receiver operator characteristic (ROC) curve.
 
     Args:
         y_true_binary:
@@ -430,8 +434,7 @@ def _bokeh_precision_recall_curve(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
 ) -> Callable[[], Figure]:
-    """
-    Plots an interactive precision recall curve.
+    """ Interactive precision recall curve.
 
     Args:
         y_true_binary:
