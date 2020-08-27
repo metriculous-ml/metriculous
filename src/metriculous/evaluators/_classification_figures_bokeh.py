@@ -531,50 +531,50 @@ def _bokeh_automation_rate_analysis(
         A callable that returns a fresh bokeh figure each time it is called
 
     """
-    # ----- check input -----
-    assert y_target_one_hot.ndim == 2
-    assert y_pred_proba.ndim == 2
-    assert (
-        y_target_one_hot.shape == y_pred_proba.shape
-    ), f"{y_target_one_hot.shape} != {y_pred_proba.shape}"
-    check_normalization(y_target_one_hot, axis=1)
-    check_normalization(y_pred_proba, axis=1)
-    assert set(y_target_one_hot.ravel()) == {0, 1}, set(y_target_one_hot.ravel())
-
-    if sample_weights is None:
-        sample_weights = np.ones(len(y_target_one_hot))
-
-    assert_that(sample_weights.shape).is_equal_to((len(y_target_one_hot),))
-
-    # ----- compute chart data -----
-    y_target = y_target_one_hot.argmax(axis=1)
-    argmaxes = y_pred_proba.argmax(axis=1)
-    maxes = y_pred_proba.max(axis=1)
-    assert isinstance(maxes, np.ndarray)  # making IntelliJ's type checker happy
-
-    chart_data: Dict[str, List[float]] = {
-        "automation_rate": [],
-        "threshold": [],
-        "accuracy": [],
-    }
-
-    for threshold in sorted(maxes):
-        automated = maxes >= threshold
-        chart_data["automation_rate"].append(
-            np.average(automated, weights=sample_weights)
-        )
-        chart_data["threshold"].append(threshold)
-        chart_data["accuracy"].append(
-            accuracy_score(
-                y_true=y_target[automated],
-                y_pred=argmaxes[automated],
-                sample_weight=sample_weights[automated],
-            )
-        )
 
     def figure() -> Figure:
+        # ----- Check input -----
+        assert y_target_one_hot.ndim == 2
+        assert y_pred_proba.ndim == 2
+        assert (
+            y_target_one_hot.shape == y_pred_proba.shape
+        ), f"{y_target_one_hot.shape} != {y_pred_proba.shape}"
+        check_normalization(y_target_one_hot, axis=1)
+        check_normalization(y_pred_proba, axis=1)
+        assert set(y_target_one_hot.ravel()) == {0, 1}, set(y_target_one_hot.ravel())
 
-        # ----- bokeh plot -----
+        if sample_weights is not None:
+            assert_that(sample_weights.shape).is_equal_to((len(y_target_one_hot),))
+
+        # ----- Compute chart data -----
+        y_target = y_target_one_hot.argmax(axis=1)
+        argmaxes = y_pred_proba.argmax(axis=1)
+        maxes = y_pred_proba.max(axis=1)
+        assert isinstance(maxes, np.ndarray)  # making IntelliJ's type checker happy
+
+        chart_data: Mapping[str, List[float]] = {
+            "automation_rate": [],
+            "threshold": [],
+            "accuracy": [],
+        }
+
+        for threshold in np.sort(maxes):
+            automated = maxes >= threshold
+            chart_data["automation_rate"].append(
+                np.average(automated, weights=sample_weights)
+            )
+            chart_data["threshold"].append(threshold)
+            chart_data["accuracy"].append(
+                _faster_accuracy(
+                    y_true=y_target[automated],
+                    y_pred=argmaxes[automated],
+                    sample_weights=(
+                        None if sample_weights is None else sample_weights[automated]
+                    ),
+                )
+            )
+
+        # ----- Bokeh plot -----
         p = plotting.figure(
             plot_height=400,
             plot_width=350,
@@ -640,3 +640,11 @@ def _bokeh_automation_rate_analysis(
         return p
 
     return figure
+
+
+def _faster_accuracy(
+    y_true: np.ndarray, y_pred: np.ndarray, sample_weights: Optional[np.ndarray]
+) -> float:
+    assert y_true.ndim == 1
+    assert y_pred.ndim == 1
+    return np.average(y_true == y_pred, weights=sample_weights)
