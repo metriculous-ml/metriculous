@@ -167,7 +167,6 @@ def _bokeh_actual_vs_predicted_scatter_with_histograms(  # TODO rename
     """
 
     def function() -> LayoutDOM:
-        # --- Create the scatter plot ---
         layout, p_scatter = _bokeh_scatter_with_histograms(
             x=data.predictions,
             y=data.targets,
@@ -202,11 +201,11 @@ def _bokeh_residual_vs_predicted_scatter_with_histograms(
     """
     Plots ground truth and prediction in a scatter plot with small histograms attached to the axes.
     """
-    predictions = data.predictions
-    residuals = np.asarray(data.targets) - np.asarray(predictions)
 
     def function() -> LayoutDOM:
-        # --- Create the scatter plot ---
+        predictions = data.predictions
+        residuals = np.asarray(data.targets) - np.asarray(predictions)
+
         layout, p_scatter = _bokeh_scatter_with_histograms(
             x=predictions,
             y=residuals,
@@ -237,10 +236,10 @@ def _bokeh_targets_and_predictions_histograms(
     """
     Plots two histograms, one for the ground truth and one for the prediction.
     """
-    targets = data.targets
-    predictions = data.predictions
 
     def function() -> Column:
+        targets = data.targets
+        predictions = data.predictions
 
         p = figure(tools=TOOLS)
 
@@ -293,10 +292,10 @@ def _bokeh_residual_histogram(
     """
     Plots a histogram of the errors.
     """
-    targets = data.targets
-    predictions = data.predictions
 
     def function() -> Column:
+        targets = data.targets
+        predictions = data.predictions
 
         p = figure(tools=TOOLS)
 

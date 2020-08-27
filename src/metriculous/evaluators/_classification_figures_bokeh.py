@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Sequence, Union
+from typing import Callable, List, Mapping, Optional, Sequence, Union
 
 import numpy as np
 from assertpy import assert_that
@@ -6,7 +6,6 @@ from bokeh import plotting
 from bokeh.models import ColumnDataSource, HoverTool, LinearColorMapper
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
-from sklearn.metrics import accuracy_score
 
 from metriculous.evaluators._bokeh_utils import (
     BACKGROUND_COLOR,
@@ -53,20 +52,17 @@ def _bokeh_output_histogram(
         A callable that returns a fresh bokeh figure each time it is called
 
     """
-
-    n = len(class_names)
+    weights = np.ones_like(y_true) if sample_weights is None else sample_weights
 
     assert_that(np.shape(y_true)).is_equal_to(np.shape(y_pred))
-
-    if sample_weights is None:
-        sample_weights = np.ones_like(y_true)
-
-    assert_that(np.shape(y_true)).is_equal_to(np.shape(sample_weights))
-
-    bins = np.arange(0, n + 1, 1)
-    normalize = not np.allclose(sample_weights, 1.0)
+    assert_that(np.shape(y_true)).is_equal_to(np.shape(weights))
+    normalize = not np.allclose(weights, 1.0)
 
     def figure() -> Figure:
+        n = len(class_names)
+
+        bins = np.arange(0, n + 1, 1)
+
         p = plotting.figure(
             x_range=class_names,
             plot_height=350,
@@ -75,24 +71,20 @@ def _bokeh_output_histogram(
             toolbar_location=TOOLBAR_LOCATION,
         )
 
-        # class distribution in prediction
+        # Class distribution in prediction
         p.vbar(
             x=class_names,
-            top=np.histogram(
-                y_pred, bins=bins, weights=sample_weights, density=normalize
-            )[0],
+            top=np.histogram(y_pred, bins=bins, weights=weights, density=normalize)[0],
             width=0.85,
             color=DARK_BLUE,
             alpha=HISTOGRAM_ALPHA,
             legend_label="Prediction",
         )
 
-        # class distribution in ground truth
+        # Class distribution in ground truth
         p.vbar(
             x=class_names,
-            top=np.histogram(
-                y_true, bins=bins, weights=sample_weights, density=normalize
-            )[0],
+            top=np.histogram(y_true, bins=bins, weights=weights, density=normalize)[0],
             width=0.85,
             alpha=0.6,
             legend_label="Ground Truth",
@@ -112,7 +104,7 @@ def _bokeh_output_histogram(
 
         p.xgrid.grid_line_color = None
 
-        # prevent panning to empty regions
+        # Prevent panning to empty regions
         p.x_range.bounds = (-0.5, 0.5 + len(class_names))
         return p
 
@@ -276,10 +268,10 @@ def _bokeh_confusion_scatter(
         A callable that returns a fresh bokeh figure each time it is called
 
     """
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length!")
 
     def figure() -> Figure:
+        if len(y_true) != len(y_pred):
+            raise ValueError("y_true and y_pred must have the same length!")
 
         p = plotting.figure(
             x_range=(-0.5, -0.5 + len(class_names)),
@@ -363,17 +355,18 @@ def _bokeh_roc_curve(
         A callable that returns a fresh bokeh figure each time it is called
 
     """
-    assert y_true_binary.shape == y_pred_score.shape
-    assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
-        {False, True}
-    )
-    assert np.ndim(y_true_binary) == 1
-
-    fpr, tpr, thresholds = sklmetrics.roc_curve(
-        y_true=y_true_binary, y_score=y_pred_score, sample_weight=sample_weights
-    )
 
     def figure() -> Figure:
+        assert y_true_binary.shape == y_pred_score.shape
+        assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
+            {False, True}
+        )
+        assert np.ndim(y_true_binary) == 1
+
+        fpr, tpr, thresholds = sklmetrics.roc_curve(
+            y_true=y_true_binary, y_score=y_pred_score, sample_weight=sample_weights
+        )
+
         source = ColumnDataSource(
             data={
                 "FPR": fpr,
@@ -450,21 +443,21 @@ def _bokeh_precision_recall_curve(
         A callable that returns a fresh bokeh figure each time it is called
 
     """
-    assert y_true_binary.shape == y_pred_score.shape
-    assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
-        {False, True}
-    )
-    assert np.ndim(y_true_binary) == 1
-
-    # Note: len(thresholds) == len(precision) - 1
-    # The last precision recall pair does not have a corresponding threshold.
-    precision, recall, thresholds = sklmetrics.precision_recall_curve(
-        y_true=y_true_binary, probas_pred=y_pred_score, sample_weight=sample_weights
-    )
-    precision = precision[:-1]
-    recall = recall[:-1]
 
     def figure() -> Figure:
+        assert y_true_binary.shape == y_pred_score.shape
+        assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
+            {False, True}
+        )
+        assert np.ndim(y_true_binary) == 1
+
+        # Note: len(thresholds) == len(precision) - 1
+        # The last precision recall pair does not have a corresponding threshold.
+        precision, recall, thresholds = sklmetrics.precision_recall_curve(
+            y_true=y_true_binary, probas_pred=y_pred_score, sample_weight=sample_weights
+        )
+        precision = precision[:-1]
+        recall = recall[:-1]
 
         p = plotting.figure(
             plot_height=400,
@@ -473,14 +466,13 @@ def _bokeh_precision_recall_curve(
             y_range=(-0.05, 1.05),
             tools=TOOLS,
             toolbar_location=TOOLBAR_LOCATION,
-            # match_aspect=True,
         )
 
         source = ColumnDataSource(
             data={"precision": precision, "recall": recall, "threshold": thresholds}
         )
 
-        # reminder: tpr == recall == sensitivity
+        # Reminder: tpr == recall == sensitivity
         p.line(x="recall", y="precision", line_width=2, source=source)
 
         add_title_rows(p, title_rows)
@@ -582,7 +574,6 @@ def _bokeh_automation_rate_analysis(
             y_range=(-0.05, 1.05),
             tools=TOOLS,
             toolbar_location=TOOLBAR_LOCATION,
-            # match_aspect=True,
         )
 
         source = ColumnDataSource(
@@ -607,7 +598,7 @@ def _bokeh_automation_rate_analysis(
             legend_label="Threshold",
         )
 
-        # make sure something is visible if lines consist of just a single point
+        # Make sure something is visible if lines consist of just a single point
         p.scatter(
             x=source.data["automation_rate"][[0, -1]],
             y=source.data["accuracy"][[0, -1]],
