@@ -1,6 +1,7 @@
 import os
 import warnings
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Sequence, TypeVar, Union
 
@@ -87,8 +88,13 @@ class Comparison:
         )
 
     def save_html(
-        self, file_path: Union[str, Path], include_spacer: Optional[bool] = None
+        self,
+        file_path: Optional[Union[str, Path]] = None,
+        include_spacer: Optional[bool] = None,
     ) -> "Comparison":
+        if file_path is None:
+            file_path = self._generate_default_html_file_name()
+
         file_path = Path(file_path)
         if file_path.exists():
             raise FileExistsError(f"Path exists, refusing to overwrite '{file_path}'")
@@ -96,6 +102,10 @@ class Comparison:
         with file_path.open(mode="w"):
             file_path.write_text(html_string)
         return self
+
+    def _generate_default_html_file_name(self) -> str:
+        now = datetime.now().strftime("%Y-%m-%d-%H%M%S")
+        return f"comparison_{now}_{len(self.evaluations)}_models.html"
 
 
 G = TypeVar("G", contravariant=True)

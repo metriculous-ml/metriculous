@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -14,7 +15,9 @@ def make_a_bokeh_figure() -> Figure:
     return p
 
 
-def make_a_comparison(with_quantities: bool, with_figures: bool) -> Comparison:
+def make_a_comparison(
+    with_quantities: bool, with_figures: bool, n_models: int = 5
+) -> Comparison:
     evaluations = [
         Evaluation(
             model_name=f"Model_{i}",
@@ -29,7 +32,7 @@ def make_a_comparison(with_quantities: bool, with_figures: bool) -> Comparison:
             if not with_figures
             else [make_a_bokeh_figure, make_a_bokeh_figure],
         )
-        for i in range(5)
+        for i in range(n_models)
     ]
     return Comparison(evaluations)
 
@@ -76,3 +79,16 @@ class TestComparison:
         path = Path("test_output.html")
         comparison.save_html(path)
         path.unlink()
+
+    def test_generate_default_html_file_name(self) -> None:
+        comparison = make_a_comparison(with_quantities=True, with_figures=True)
+        n_models = 5
+        name = comparison._generate_default_html_file_name()
+        assert name.startswith("comparison_")
+        now = datetime.now()
+        assert now.strftime("%Y-%m-%d-%H%M") in name
+        assert (
+            f"{now.year}-{now.month:02}-{now.day:02}-{now.hour:02}{now.minute:02}"
+            in name
+        )
+        assert name.endswith(f"_{n_models}_models.html")
