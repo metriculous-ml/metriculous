@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, List, Optional, Sequence, Tuple
+from typing import Callable, Iterable, Optional, Sequence, Tuple
 
 import numpy as np
 from bokeh.plotting import Figure
@@ -171,7 +171,7 @@ class SegmentationEvaluator(Evaluator):
 
     def _lazy_figures(
         self, model_name: str, y_pred: np.ndarray, y_true: np.ndarray
-    ) -> List[Tuple[str, Callable[[], Figure]]]:
+    ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
 
         lazy_figures = []
 

@@ -1,6 +1,6 @@
 import copy
 from dataclasses import replace
-from typing import Callable, List, Tuple
+from typing import Callable, Sequence, Tuple
 
 import numpy as np
 import pytest
@@ -19,7 +19,7 @@ def get_random_prediction_and_mask(
 
 
 @pytest.mark.parametrize("classes", (["dog", "cat", "snake"], ["dog", "cat"]))
-def test_SegmentationEvaluator(classes: List[str]) -> None:
+def test_SegmentationEvaluator(classes: Sequence[str]) -> None:
 
     np.random.seed(42)
 
@@ -38,7 +38,7 @@ def test_SegmentationEvaluator(classes: List[str]) -> None:
 
 
 @pytest.mark.parametrize("classes", (["dog", "cat", "snake"], ["dog", "cat"]))
-def test_SegmentationEvaluator_perfect_prediction(classes: List[str]) -> None:
+def test_SegmentationEvaluator_perfect_prediction(classes: Sequence[str]) -> None:
 
     np.random.seed(42)
 
@@ -85,7 +85,7 @@ def test_SegmentationEvaluator_perfect_prediction(classes: List[str]) -> None:
     "num_classes, class_names", [(1, ["dog", "cat"]), (2, ["dog"])]
 )
 def test_SegmentationEvaluator_inconsistent_class_names(
-    num_classes: int, class_names: List[str]
+    num_classes: int, class_names: Sequence[str]
 ) -> None:
 
     """
@@ -100,7 +100,7 @@ def test_SegmentationEvaluator_inconsistent_class_names(
 
 @pytest.mark.parametrize("num_classes, class_weights", [(1, [0.2, 0.3]), (2, [0.2])])
 def test_SegmentationEvaluator_inconsistent_class_weights(
-    num_classes: int, class_weights: List[float]
+    num_classes: int, class_weights: Sequence[float]
 ) -> None:
 
     """

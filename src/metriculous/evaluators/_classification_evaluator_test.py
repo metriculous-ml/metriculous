@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import Callable, List, Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 import numpy as np
 import numpy.testing as npt
@@ -53,7 +53,7 @@ def test_ClassificationEvaluator(
     noise_factor: float,
     simulated_class_distribution: Optional[Sequence[float]],
     num_samples: int,
-    classes: Optional[List[str]],
+    classes: Optional[Sequence[str]],
     one_vs_all_quantities: bool,
     one_vs_all_figures: bool,
     top_n_accuracies: Sequence[int],
@@ -109,7 +109,7 @@ def test_ClassificationEvaluator(
 def test_ClassificationEvaluator_perfect_prediction(
     num_samples: int,
     use_sample_weights: bool,
-    simulated_class_distribution: List[float],
+    simulated_class_distribution: Sequence[float],
 ) -> None:
     np.random.seed(42)
     targets_one_hot = random_targets_one_hot(num_classes=3, num_samples=num_samples)

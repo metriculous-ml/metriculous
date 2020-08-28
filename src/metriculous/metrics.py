@@ -1,5 +1,5 @@
 """Module defining generic metric functions."""
-from typing import List, Optional, Tuple
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 from assertpy import assert_that
@@ -81,7 +81,7 @@ def a_vs_b_auroc(
 
 def one_vs_all_auroc_values(
     target_ints: np.ndarray, predicted_probas: np.ndarray
-) -> List[Optional[float]]:
+) -> Sequence[Optional[float]]:
     """Returns one AUROC (area under ROC curve, aka ROC AUC) score per class.
 
     Args:

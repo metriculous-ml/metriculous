@@ -22,7 +22,7 @@ from metriculous._evaluation import Evaluation, Evaluator
 
 @dataclass(frozen=True)
 class Comparison:
-    evaluations: List[Evaluation]
+    evaluations: Sequence[Evaluation]
 
     def __post_init__(self) -> None:
         _check_consistency(self.evaluations)
@@ -198,7 +198,7 @@ def _display_html_in_notebook(html: str) -> None:
 
 def _get_and_supplement_model_names(
     model_evaluations: Sequence[Evaluation],
-) -> List[str]:
+) -> Sequence[str]:
     return [
         evaluation.model_name
         if evaluation.model_name is not None
@@ -208,7 +208,7 @@ def _get_and_supplement_model_names(
 
 
 def _model_evaluations_to_data_frame(
-    model_evaluations: List[Evaluation],
+    model_evaluations: Sequence[Evaluation],
 ) -> pd.DataFrame:
     quantity_names = [q.name for q in model_evaluations[0].quantities]
 
@@ -223,7 +223,7 @@ def _model_evaluations_to_data_frame(
         data.append(row)
 
     model_names = _get_and_supplement_model_names(model_evaluations)
-    return pd.DataFrame(data, columns=["Quantity"] + model_names)
+    return pd.DataFrame(data, columns=["Quantity", *model_names])
 
 
 def _check_consistency(model_evaluations: Sequence[Evaluation]) -> None:

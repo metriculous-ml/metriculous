@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Sequence, Tuple
+from typing import Any, Callable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 from bokeh.layouts import column, gridplot
@@ -21,7 +21,9 @@ from metriculous.evaluators._regression_utils import Floats, RegressionData
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_COLOR = "black"
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_ALPHA = 0.7
 
-DASHED_LINE_PROPERTIES = dict(color="black", alpha=0.6, line_dash=[6, 2], width=1)
+DASHED_LINE_PROPERTIES: Mapping[str, Any] = dict(
+    color="black", alpha=0.6, line_dash=[6, 2], width=1
+)
 
 DEFAULT_N_HISTOGRAM_BINS = 20
 
