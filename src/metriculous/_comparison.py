@@ -27,7 +27,7 @@ class Comparison:
         _check_consistency(self.evaluations)
 
     def display(
-        self, include_spacer: bool = False, width: Optional[str] = None
+        self, include_spacer: Optional[bool] = None, width: Optional[str] = None
     ) -> None:
         """Displays a table with quantities and figures in a Jupyter notebook."""
 
@@ -58,7 +58,7 @@ class Comparison:
         except Exception:
             pass
 
-    def html(self, include_spacer: bool = False) -> str:
+    def html(self, include_spacer: Optional[bool] = None) -> str:
         css = """
         <style>
             html {
@@ -87,7 +87,7 @@ class Comparison:
         )
 
     def save_html(
-        self, file_path: Union[str, Path], include_spacer: bool = False
+        self, file_path: Union[str, Path], include_spacer: Optional[bool] = None
     ) -> "Comparison":
         file_path = Path(file_path)
         if file_path.exists():
@@ -359,11 +359,11 @@ def _html_quantity_comparison_table(model_evaluations: Sequence[Evaluation]) -> 
 
 
 def _html_figure_table(
-    model_evaluations: Sequence[Evaluation], include_spacer: bool
+    model_evaluations: Sequence[Evaluation], include_spacer: Optional[bool]
 ) -> str:
     html_output = ""
 
-    rows = _figure_rows(model_evaluations, include_spacer)
+    rows = _figure_rows(model_evaluations, include_spacer=include_spacer)
 
     if rows:
         html_output += file_html(
@@ -376,7 +376,7 @@ def _html_figure_table(
 
 
 def _figure_rows(
-    model_evaluations: Sequence[Evaluation], include_spacer: bool
+    model_evaluations: Sequence[Evaluation], include_spacer: Optional[bool],
 ) -> Sequence[Row]:
     # TODO check figure consistency
     rows = []
@@ -385,7 +385,9 @@ def _figure_rows(
             evaluation.lazy_figures[i_figure]()
             for i_model, evaluation in enumerate(model_evaluations)
         ]
-        if include_spacer:
+        if len(model_evaluations) == 1 and include_spacer in (None, True):
+            row_of_figures = row_of_figures + [Spacer()]
+        elif include_spacer is True:
             row_of_figures = [Spacer()] + row_of_figures
         rows.append(bokeh.layouts.row(row_of_figures, sizing_mode="scale_width"))
     return rows

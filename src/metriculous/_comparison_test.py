@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import pytest
 from bokeh import plotting
@@ -36,27 +37,30 @@ def make_a_comparison(with_quantities: bool, with_figures: bool) -> Comparison:
 class TestComparison:
     @pytest.mark.parametrize("with_quantities", [True, False])
     @pytest.mark.parametrize("with_figures", [True, False])
-    def test_html_smoke_test(self, with_quantities: bool, with_figures: bool) -> None:
+    @pytest.mark.parametrize("include_spacer", [True, False, None])
+    def test_html_smoke_test(
+        self, with_quantities: bool, with_figures: bool, include_spacer: Optional[bool]
+    ) -> None:
         comparison = make_a_comparison(with_quantities, with_figures=with_figures)
-        html_string = comparison.html()
+        html_string = comparison.html(include_spacer)
         assert isinstance(html_string, str)
-        # Check that it can vbe called a second time
-        html_string_2 = comparison.html()
+        # Check that it can be called a second time. A second call can crash
+        # when Bokeh figure objects aren't recreated in each call.
+        html_string_2 = comparison.html(include_spacer)
         # HTML will not be exactly equal as bokeh and/or pandas generate
         # different IDs each time
-        assert len(html_string) == len(html_string_2)
         assert html_string[:100] == html_string_2[:100]
         assert html_string[-100:] == html_string_2[-100:]
 
     @pytest.mark.parametrize("with_quantities", [True, False])
     @pytest.mark.parametrize("with_figures", [True, False])
-    @pytest.mark.parametrize("include_spacer", [True, False])
+    @pytest.mark.parametrize("include_spacer", [True, False, None])
     def test_save_html(
-        self, with_quantities: bool, with_figures: bool, include_spacer: bool
+        self, with_quantities: bool, with_figures: bool, include_spacer: Optional[bool]
     ) -> None:
         comparison = make_a_comparison(with_quantities, with_figures=with_figures)
         path = Path("save_html_smoke_test_output.html")
-        comparison.save_html(path)
+        comparison.save_html(path, include_spacer=include_spacer)
         with path.open() as html_file:
             html_in_file = html_file.read()
         path.unlink()
