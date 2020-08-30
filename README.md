@@ -18,22 +18,21 @@
         />
     </a>
     <a href="https://badge.fury.io/py/metriculous">
-        <img 
-            src="https://badge.fury.io/py/metriculous.svg" 
-            alt="PyPI version" 
+        <img
+            src="https://badge.fury.io/py/metriculous.svg"
+            alt="PyPI version"
         />
     </a>
     <img 
         src="https://img.shields.io/pypi/pyversions/metriculous"
-        alt="PyPI - Python Version" 
+        alt="PyPI - Python Version"
     >
     <img 
         src="https://img.shields.io/github/license/metriculous-ml/metriculous"
         alt="License MIT"
     >
-    <a>
+    <a href="https://luminovo.ai/">
         <img
-            href="https://luminovo.ai/"
             src="https://img.shields.io/badge/friends%20with-luminovo.AI-green"
             alt="Friends with Luminovo.AI"
         >
