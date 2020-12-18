@@ -5,10 +5,5 @@ pip install .
 
 # Support jupytext files on mybinder.org:
 # https://jupytext.readthedocs.io/en/latest/faq.html#can-i-use-jupytext-with-jupyter-hub-binder-nteract-colab-saturn-or-azure
-
-# In addition everything to requirements.txt,
-# which does not include the dev dependencies from pyproject.toml,
-# install jupytext:
-
 pip install jupytext
 jupyter lab build

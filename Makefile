@@ -23,7 +23,7 @@ check: ## Runs all static checks (flake8, mypy, formatting checks)
 	@echo "\n=== flake8 ======================"
 	poetry run flake8 src --ignore=E203,E266,E501,W503 --max-line-length=88 --max-complexity=15 --select=B,C,E,F,W,T4,B9
 	@echo "\n=== mypy ========================"
-	poetry run mypy src notebooks integration_tests
+	poetry run mypy src notebooks
 
 
 clean:
