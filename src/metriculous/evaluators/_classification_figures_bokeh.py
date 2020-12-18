@@ -146,6 +146,10 @@ def _bokeh_confusion_matrix(
         cm_normalized_by_pred = cm.astype("float") / cm.sum(axis=0, keepdims=True)
         cm_normalized_by_true = cm.astype("float") / cm.sum(axis=1, keepdims=True)
 
+        cm_normalized = np.nan_to_num(cm_normalized)
+        cm_normalized_by_pred = np.nan_to_num(cm_normalized_by_pred)
+        cm_normalized_by_true = np.nan_to_num(cm_normalized_by_true)
+
         predicted = list()
         actual = list()
         count = list()
