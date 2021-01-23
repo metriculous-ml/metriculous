@@ -11,10 +11,22 @@ from metriculous.evaluators._classification_figures_bokeh import (
 )
 
 
-def test_bokeh_confusion_matrix__does_not_crash_when_class_is_never_predicted() -> None:
+def test_bokeh_confusion_matrix__no_crash_when_class_is_never_predicted() -> None:
     lazy_figure = _bokeh_confusion_matrix(
         y_true=np.asarray([0, 1, 2]),
         y_pred=np.asarray([1, 1, 1]),
+        class_names=["A", "B", "C"],
+        title_rows=["Some", "Title"],
+    )
+    figure = lazy_figure()
+
+    _ = file_html(figure, resources=CDN)
+
+
+def test_bokeh_confusion_matrix__no_crash_when_class_is_never_predicted_and_not_in_y_true() -> None:
+    lazy_figure = _bokeh_confusion_matrix(
+        y_true=np.asarray([0, 1, 1]),  # no 2
+        y_pred=np.asarray([1, 1, 1]),  # no 2
         class_names=["A", "B", "C"],
         title_rows=["Some", "Title"],
     )
