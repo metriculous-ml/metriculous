@@ -1,3 +1,11 @@
+## 0.3.0 - 2021-01-23
+
+* New look for confusion matrix
+* `Comparison.save_html` automatically generates a file name unless a path is specified
+* Improved figure sizing when there is only a single model in a comparison 
+* Various performance improvements
+* Fix for a crash in `compare_classifiers` when some of the classes are never predicted
+
 ## 0.2.1 - 2020-08-09
 
 * Fixed an issue that had caused one-vs-rest classification figures (such as ROC curves and PR curves) to be displayed
