@@ -150,4 +150,4 @@ This project uses [poetry](https://poetry.eustace.io/) to manage
 dependencies. Please make sure it is installed for the required python version. Then install the dependencies with `poetry install`.
 
 ### Makefile
-A Makefile is used to automate common development workflows. Type `make` or `make help` to see a list of available commands. Before commiting changes it is recommended to run `make format check test`.
+A Makefile is used to automate common development workflows. Type `make` or `make help` to see a list of available commands. Before committing changes it is recommended to run `make format check test`.
