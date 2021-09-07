@@ -32,7 +32,7 @@ def _bokeh_output_histogram(
     sample_weights: Optional[np.ndarray] = None,
     x_label_rotation: Union[str, float] = "horizontal",
 ) -> Callable[[], Figure]:
-    """ Histogram of ground truth and prediction.
+    """Histogram of ground truth and prediction.
 
     Args:
         y_true:
@@ -119,7 +119,7 @@ def _bokeh_confusion_matrix(
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
 ) -> Callable[[], Figure]:
-    """ Confusion matrix heatmap.
+    """Confusion matrix heatmap.
 
     Args:
         y_true:
@@ -141,7 +141,9 @@ def _bokeh_confusion_matrix(
     """
 
     def figure() -> Figure:
-        cm = sklmetrics.confusion_matrix(y_true, y_pred, labels=list(range(len(class_names))))
+        cm = sklmetrics.confusion_matrix(
+            y_true, y_pred, labels=list(range(len(class_names)))
+        )
         cm_normalized = cm.astype("float") / cm.sum()
         cm_normalized_by_pred = cm.astype("float") / cm.sum(axis=0, keepdims=True)
         cm_normalized_by_true = cm.astype("float") / cm.sum(axis=1, keepdims=True)
@@ -248,7 +250,7 @@ def _bokeh_confusion_scatter(
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
 ) -> Callable[[], Figure]:
-    """ Scatter plot that contains the same information as a confusion matrix.
+    """Scatter plot that contains the same information as a confusion matrix.
 
     Args:
         y_true:
@@ -339,7 +341,7 @@ def _bokeh_roc_curve(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
 ) -> Callable[[], Figure]:
-    """ Interactive receiver operator characteristic (ROC) curve.
+    """Interactive receiver operator characteristic (ROC) curve.
 
     Args:
         y_true_binary:
@@ -427,7 +429,7 @@ def _bokeh_precision_recall_curve(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
 ) -> Callable[[], Figure]:
-    """ Interactive precision recall curve.
+    """Interactive precision recall curve.
 
     Args:
         y_true_binary:
