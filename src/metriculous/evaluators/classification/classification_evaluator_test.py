@@ -5,17 +5,17 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from metriculous._evaluation import Evaluation, Quantity
+from metriculous.evaluation import Evaluation, Quantity
 from metriculous.evaluators import ClassificationEvaluator
-from metriculous.evaluators._bokeh_utils import check_that_all_figures_can_be_rendered
-from metriculous.evaluators.classification._classification_evaluator import (
+from metriculous.evaluators.bokeh_utils import check_that_all_figures_can_be_rendered
+from metriculous.evaluators.classification.classification_evaluator import (
     ClassificationGroundTruth,
     ClassificationPrediction,
     check_input,
 )
 from metriculous.test_resources import noisy_prediction
 
-from ._classification_utils import ClassificationData
+from .classification_utils import ClassificationData
 
 
 def random_targets_one_hot(num_classes: int, num_samples: int) -> np.ndarray:

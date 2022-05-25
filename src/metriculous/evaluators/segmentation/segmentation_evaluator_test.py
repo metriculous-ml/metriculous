@@ -5,7 +5,7 @@ from typing import Callable, Sequence, Tuple
 import numpy as np
 import pytest
 
-from metriculous._evaluation import Evaluation, Quantity
+from metriculous.evaluation import Evaluation, Quantity
 from metriculous.evaluators import SegmentationEvaluator
 
 

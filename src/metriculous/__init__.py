@@ -1,21 +1,21 @@
 from typing import Callable, Optional, Sequence
 
 from metriculous import evaluators, utilities
-from metriculous._comparison import (  # noqa (Comparator deprecated)
+from metriculous.comparison import (  # noqa (Comparator deprecated)
     Comparator,
     Comparison,
     compare,
 )
-from metriculous._evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluation import Evaluation, Evaluator, Quantity
 from metriculous.evaluators import ClassificationEvaluator, RegressionEvaluator
-from metriculous.evaluators.classification._classification_evaluator import (
+from metriculous.evaluators.classification.classification_evaluator import (
     ClassificationGroundTruth,
     ClassificationPrediction,
 )
-from metriculous.evaluators.regression._regression_figures_bokeh import (
+from metriculous.evaluators.regression.regression_figures_bokeh import (
     DEFAULT_N_HISTOGRAM_BINS,
 )
-from metriculous.evaluators.regression._regression_utils import Floats
+from metriculous.evaluators.regression.regression_utils import Floats
 
 __all__ = [
     "compare",

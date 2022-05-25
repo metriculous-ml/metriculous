@@ -4,16 +4,16 @@ import numpy as np
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 
-from metriculous._evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluation import Evaluation, Evaluator, Quantity
 
-from ._regression_figures_bokeh import (
+from .regression_figures_bokeh import (
     DEFAULT_N_HISTOGRAM_BINS,
     _bokeh_actual_vs_predicted_scatter_with_histograms,
     _bokeh_residual_histogram,
     _bokeh_residual_vs_predicted_scatter_with_histograms,
     _bokeh_targets_and_predictions_histograms,
 )
-from ._regression_utils import Floats, RegressionData
+from .regression_utils import Floats, RegressionData
 
 
 class RegressionEvaluator(Evaluator[Floats, Floats]):

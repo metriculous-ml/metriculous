@@ -5,7 +5,7 @@ from bokeh.layouts import column, gridplot
 from bokeh.models import Column, LayoutDOM
 from bokeh.plotting import Figure, figure
 
-from metriculous.evaluators._bokeh_utils import (
+from metriculous.evaluators.bokeh_utils import (
     DARK_BLUE,
     DARK_RED,
     HISTOGRAM_ALPHA,
@@ -16,7 +16,7 @@ from metriculous.evaluators._bokeh_utils import (
     scatter_plot_circle_size,
     title_div,
 )
-from metriculous.evaluators.regression._regression_utils import Floats, RegressionData
+from metriculous.evaluators.regression.regression_utils import Floats, RegressionData
 
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_COLOR = "black"
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_ALPHA = 0.7

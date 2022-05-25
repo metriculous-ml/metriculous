@@ -4,11 +4,11 @@ import numpy as np
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 
-from metriculous._evaluation import Evaluation, Evaluator, Quantity
-from metriculous.evaluators.classification._classification_figures_bokeh import (
+from metriculous.evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluators.classification.classification_figures_bokeh import (
     _bokeh_output_histogram,
 )
-from metriculous.evaluators.segmentation._segmentation_figures_bokeh import (
+from metriculous.evaluators.segmentation.segmentation_figures_bokeh import (
     _bokeh_heatmap,
 )
 

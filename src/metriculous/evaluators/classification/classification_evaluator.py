@@ -7,8 +7,8 @@ from bokeh.plotting import Figure
 from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
-from metriculous._evaluation import Evaluation, Evaluator, Quantity
-from metriculous.evaluators.classification._classification_figures_bokeh import (
+from metriculous.evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluators.classification.classification_figures_bokeh import (
     _bokeh_automation_rate_analysis,
     _bokeh_confusion_matrix,
     _bokeh_confusion_scatter,
@@ -16,7 +16,7 @@ from metriculous.evaluators.classification._classification_figures_bokeh import 
     _bokeh_precision_recall_curve,
     _bokeh_roc_curve,
 )
-from metriculous.evaluators.classification._classification_utils import (
+from metriculous.evaluators.classification.classification_utils import (
     ClassificationData,
     Integers,
     ProbabilityMatrix,

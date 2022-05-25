@@ -7,7 +7,7 @@ from bokeh.models import ColumnDataSource, HoverTool, LinearColorMapper
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 
-from metriculous.evaluators._bokeh_utils import (
+from metriculous.evaluators.bokeh_utils import (
     BACKGROUND_COLOR,
     DARK_BLUE,
     FONT_SIZE,
@@ -21,7 +21,7 @@ from metriculous.evaluators._bokeh_utils import (
     color_palette,
     scatter_plot_circle_size,
 )
-from metriculous.evaluators.classification._classification_utils import (
+from metriculous.evaluators.classification.classification_utils import (
     check_normalization,
 )
 

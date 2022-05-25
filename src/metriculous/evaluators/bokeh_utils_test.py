@@ -1,4 +1,4 @@
-from metriculous.evaluators._bokeh_utils import scatter_plot_circle_size
+from metriculous.evaluators.bokeh_utils import scatter_plot_circle_size
 
 
 def test_scatter_plot_circle_size() -> None:

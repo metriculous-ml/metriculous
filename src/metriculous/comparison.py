@@ -17,7 +17,7 @@ from bokeh.models import Row, Spacer
 from bokeh.resources import CDN
 from IPython.display import HTML, display
 
-from metriculous._evaluation import Evaluation, Evaluator
+from metriculous.evaluation import Evaluation, Evaluator
 
 
 @dataclass(frozen=True)

@@ -7,7 +7,7 @@ import pytest
 
 from metriculous import Evaluation, Quantity
 from metriculous.evaluators import RegressionEvaluator
-from metriculous.evaluators._bokeh_utils import check_that_all_figures_can_be_rendered
+from metriculous.evaluators.bokeh_utils import check_that_all_figures_can_be_rendered
 
 
 class TestRegressionEvaluator:
