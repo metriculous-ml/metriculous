@@ -7,8 +7,8 @@ from bokeh.plotting import Figure
 from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
-from .._evaluation import Evaluation, Evaluator, Quantity
-from ..evaluators._classification_figures_bokeh import (
+from metriculous._evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluators.classification._classification_figures_bokeh import (
     _bokeh_automation_rate_analysis,
     _bokeh_confusion_matrix,
     _bokeh_confusion_scatter,
@@ -16,14 +16,14 @@ from ..evaluators._classification_figures_bokeh import (
     _bokeh_precision_recall_curve,
     _bokeh_roc_curve,
 )
-from ..metrics import top_n_accuracy
-from ..utilities import sample_weights_simulating_class_distribution
-from ._classification_utils import (
+from metriculous.evaluators.classification._classification_utils import (
     ClassificationData,
     Integers,
     ProbabilityMatrix,
     check_normalization,
 )
+from metriculous.metrics import top_n_accuracy
+from metriculous.utilities import sample_weights_simulating_class_distribution
 
 ClassificationGroundTruth = Union[np.ndarray, Sequence[Sequence[float]], Sequence[int]]
 ClassificationPrediction = Union[np.ndarray, Sequence[Sequence[float]]]

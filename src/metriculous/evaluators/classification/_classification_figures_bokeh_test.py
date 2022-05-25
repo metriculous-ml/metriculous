@@ -5,7 +5,7 @@ from bokeh.embed import file_html
 from bokeh.resources import CDN
 from sklearn.metrics import accuracy_score as sklearn_accuracy
 
-from metriculous.evaluators._classification_figures_bokeh import (
+from metriculous.evaluators.classification._classification_figures_bokeh import (
     _bokeh_confusion_matrix,
     _faster_accuracy,
 )

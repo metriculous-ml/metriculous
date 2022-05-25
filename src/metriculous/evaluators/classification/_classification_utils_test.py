@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from numpy import testing as npt
 
-from metriculous.evaluators._classification_utils import (
+from metriculous.evaluators.classification._classification_utils import (
     ClassificationData,
     ProbabilityMatrix,
 )

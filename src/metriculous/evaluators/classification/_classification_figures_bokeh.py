@@ -21,7 +21,9 @@ from metriculous.evaluators._bokeh_utils import (
     color_palette,
     scatter_plot_circle_size,
 )
-from metriculous.evaluators._classification_utils import check_normalization
+from metriculous.evaluators.classification._classification_utils import (
+    check_normalization,
+)
 
 
 def _bokeh_output_histogram(

@@ -5,8 +5,8 @@ from typing import Callable, Sequence, Tuple
 import numpy as np
 import pytest
 
-from .._evaluation import Evaluation, Quantity
-from ..evaluators import SegmentationEvaluator
+from metriculous._evaluation import Evaluation, Quantity
+from metriculous.evaluators import SegmentationEvaluator
 
 
 def get_random_prediction_and_mask(

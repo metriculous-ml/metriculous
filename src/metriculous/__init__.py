@@ -8,12 +8,14 @@ from metriculous._comparison import (  # noqa (Comparator deprecated)
 )
 from metriculous._evaluation import Evaluation, Evaluator, Quantity
 from metriculous.evaluators import ClassificationEvaluator, RegressionEvaluator
-from metriculous.evaluators._classification_evaluator import (
+from metriculous.evaluators.classification._classification_evaluator import (
     ClassificationGroundTruth,
     ClassificationPrediction,
 )
-from metriculous.evaluators._regression_figures_bokeh import DEFAULT_N_HISTOGRAM_BINS
-from metriculous.evaluators._regression_utils import Floats
+from metriculous.evaluators.regression._regression_figures_bokeh import (
+    DEFAULT_N_HISTOGRAM_BINS,
+)
+from metriculous.evaluators.regression._regression_utils import Floats
 
 __all__ = [
     "compare",

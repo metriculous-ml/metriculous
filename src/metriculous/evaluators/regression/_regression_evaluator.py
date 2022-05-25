@@ -4,7 +4,8 @@ import numpy as np
 from bokeh.plotting import Figure
 from sklearn import metrics as sklmetrics
 
-from .._evaluation import Evaluation, Evaluator, Quantity
+from metriculous._evaluation import Evaluation, Evaluator, Quantity
+
 from ._regression_figures_bokeh import (
     DEFAULT_N_HISTOGRAM_BINS,
     _bokeh_actual_vs_predicted_scatter_with_histograms,

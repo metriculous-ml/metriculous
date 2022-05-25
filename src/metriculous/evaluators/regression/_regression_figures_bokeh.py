@@ -16,7 +16,7 @@ from metriculous.evaluators._bokeh_utils import (
     scatter_plot_circle_size,
     title_div,
 )
-from metriculous.evaluators._regression_utils import Floats, RegressionData
+from metriculous.evaluators.regression._regression_utils import Floats, RegressionData
 
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_COLOR = "black"
 GROUND_TRUTH_HISTOGRAM_ENVELOPE_ALPHA = 0.7
