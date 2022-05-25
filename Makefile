@@ -11,7 +11,7 @@
 help: ## Shows this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-format: ## Formats code and sort imports
+format: ## Formats code and sorts imports
 	poetry run isort src
 	poetry run black src notebooks
 
