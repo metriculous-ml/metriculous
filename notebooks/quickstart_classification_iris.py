@@ -106,6 +106,7 @@ metriculous.compare(
         != "Average Precision setosa vs Rest",
         class_label_rotation_x=np.pi / 4,
         class_label_rotation_y=np.pi / 4,
+        one_vs_all_figures=True,
     ),
 ).display()
 
