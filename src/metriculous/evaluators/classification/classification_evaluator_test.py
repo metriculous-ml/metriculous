@@ -321,9 +321,9 @@ def test_ClassificationEvaluator_filter_quantities(
     "desired_number_of_figures, figure_filter",
     [
         (0, lambda name: False),
-        (10, None),
-        (10, lambda name: True),
-        (9, lambda name: "Distribution" not in name),
+        (13, None),
+        (13, lambda name: True),
+        (12, lambda name: "Distribution" not in name),
         (4, lambda name: "vs Rest" not in name),
     ],
 )

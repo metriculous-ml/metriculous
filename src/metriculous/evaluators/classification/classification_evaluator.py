@@ -8,6 +8,9 @@ from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
 from metriculous.evaluation import Evaluation, Evaluator, Quantity
+from metriculous.evaluators.classification.calibration_plot import (
+    _bokeh_probability_calibration_plot,
+)
 from metriculous.evaluators.classification.classification_figures_bokeh import (
     _bokeh_automation_rate_analysis,
     _bokeh_confusion_matrix,
@@ -325,6 +328,22 @@ class ClassificationEvaluator(
                             y_pred_score=y_pred_proba[:, class_index],
                             title_rows=[model_name, f"PR Curve {class_name} vs Rest"],
                             sample_weights=maybe_sample_weights,
+                        ),
+                    )
+                )
+
+        if self.one_vs_all_figures and maybe_sample_weights is None:
+            for class_index, class_name in enumerate(class_names):
+                lazy_figures.append(
+                    (
+                        f"Probability Calibration {class_name} vs Rest",
+                        _bokeh_probability_calibration_plot(
+                            y_true_binary=(y_true == class_index),
+                            y_pred_score=y_pred_proba[:, class_index],
+                            title_rows=[
+                                model_name,
+                                f"Probability Calibration {class_name} vs Rest",
+                            ],
                         ),
                     )
                 )
