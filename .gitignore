@@ -1,5 +1,6 @@
 **/personal_scratchpad/
 *.html
+*.ipynb
 
 ### Python
 # Byte-compiled / optimized / DLL files
