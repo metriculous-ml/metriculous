@@ -347,9 +347,9 @@ def _bokeh_roc_curve(
 
     Args:
         y_true_binary:
-            An array of zeros and ones.
+            A 1D array of zeros and ones.
         y_pred_score:
-            A continuous value, such as a probability estimate for the positive class.
+            A 1D array of probability estimates for the positive class.
         title_rows:
             Sequence of strings to be used for the chart title.
         sample_weights:
@@ -435,9 +435,9 @@ def _bokeh_precision_recall_curve(
 
     Args:
         y_true_binary:
-            An array of zeros and ones.
+            A 1D array of zeros and ones.
         y_pred_score:
-            A continuous value, such as a probability estimate for the positive class.
+            A 1D array of probability estimates for the positive class.
         title_rows:
             Sequence of strings to be used for the chart title.
         sample_weights:
