@@ -131,7 +131,7 @@ metriculous.compare_classifiers(
     model_names=["Perfect Model", "Noisy Model", "Random Model"],
     class_names=class_names,
     one_vs_all_figures=True,
-).display()
+).save_html("comparison.html").display()
 ```
 
 ![Screenshot of Metriculous Classification Table](./imgs/metriculous_classification_table.png)
