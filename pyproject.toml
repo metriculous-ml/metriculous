@@ -30,11 +30,11 @@ include = ["LICENSE"]
 
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 numpy = ">=1.16"
 scikit-learn = ">=0.21.2"
 assertpy = ">=0.14.0"
-pandas = ">=0.24.0"
+pandas = ">=1.4.0"
 bokeh = "^2.1.1"
 jupyter = "^1.0"
 

@@ -330,9 +330,9 @@ def _html_quantity_comparison_table(model_evaluations: Sequence[Evaluation]) -> 
         df_styled = df.style.set_properties(width="400px").format(_format_numbers)
         df_styled = df_styled.apply(highlight_primary_metric, axis=1)
         if highlight_fn is None:
-            return df_styled.render()
+            return df_styled.to_html()
         else:
-            return df_styled.apply(highlight_fn, axis=1, subset=df.columns[1:]).render()
+            return df_styled.apply(highlight_fn, axis=1, subset=df.columns[1:]).to_html()
 
     html_output = ""
 
