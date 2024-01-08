@@ -313,7 +313,7 @@ def _html_quantity_comparison_table(model_evaluations: Sequence[Evaluation]) -> 
     def highlight_primary_metric(data: pd.Series) -> Union[pd.DataFrame, Sequence[str]]:
         attr = "font-weight: bold; font-size: 120%;"
         if data.ndim == 1:
-            metric = data[0].lower()
+            metric = data.iloc[0].lower()
             if is_primary_metric(metric):
                 return [attr for v in data]
             else:
