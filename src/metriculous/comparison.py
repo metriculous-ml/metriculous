@@ -18,6 +18,7 @@ from bokeh.resources import CDN
 from IPython.display import HTML, display
 
 from metriculous.evaluation import Evaluation, Evaluator
+from numpy import floating
 
 
 @dataclass(frozen=True)
@@ -217,7 +218,7 @@ def _model_evaluations_to_data_frame(
     # create one row per quantity
     data = []
     for i_q, quantity_name in enumerate(quantity_names):
-        row: List[Union[str, float]] = [quantity_name]
+        row: List[Union[str, float, floating]] = [quantity_name]
         for evaluation in model_evaluations:
             quantity = evaluation.quantities[i_q]
             assert_that(quantity.name).is_equal_to(quantity_name)

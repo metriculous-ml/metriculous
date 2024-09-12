@@ -604,12 +604,12 @@ def _bokeh_automation_rate_analysis(
 
         # Make sure something is visible if lines consist of just a single point
         p.scatter(
-            x=source.data["automation_rate"][[0, -1]],
-            y=source.data["accuracy"][[0, -1]],
+            x=np.array(source.data["automation_rate"])[[0, -1]],
+            y=np.array(source.data["accuracy"])[[0, -1]],
         )
         p.scatter(
-            x=source.data["automation_rate"][[0, -1]],
-            y=source.data["threshold"][[0, -1]],
+            x=np.array(source.data["automation_rate"])[[0, -1]],
+            y=np.array(source.data["threshold"])[[0, -1]],
             color="grey",
         )
 

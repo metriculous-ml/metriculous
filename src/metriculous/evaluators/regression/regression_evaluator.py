@@ -1,7 +1,9 @@
 from typing import Callable, Optional, Sequence, Tuple
 
 import numpy as np
+from bokeh.models import LayoutDOM
 from bokeh.plotting import figure
+from numpy import ndarray
 from sklearn import metrics as sklmetrics
 
 from metriculous.evaluation import Evaluation, Evaluator, Quantity
@@ -61,7 +63,7 @@ class RegressionEvaluator(Evaluator[Floats, Floats]):
         ground_truth: Floats,
         model_prediction: Floats,
         model_name: str,
-        sample_weights: Optional[Sequence[float]] = None,
+        sample_weights: Optional[Sequence[float] | ndarray] = None,
     ) -> Evaluation:
         """
         Computes Quantities and generates figures that are useful for most
@@ -130,7 +132,7 @@ def _lazy_figures(
     model_name: str,
     maybe_sample_weights: Optional[Floats],
     n_histogram_bins: int,
-) -> Sequence[Tuple[str, Callable[[], figure]]]:
+) -> Sequence[Tuple[str, Callable[[], LayoutDOM]]]:
     F = FigureNames
 
     if maybe_sample_weights is not None:

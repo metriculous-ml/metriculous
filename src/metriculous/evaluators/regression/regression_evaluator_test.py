@@ -237,7 +237,7 @@ def assert_all_close(
 ) -> None:
     assert len(a) == len(b)
     for qa, qb in zip(a, b):
-        if isinstance(qa.value, float):
+        if isinstance(qa.value, float) and isinstance(qb.value, float):
             npt.assert_allclose(qa.value, qb.value, atol=atol, rtol=rtol)
             assert replace(qa, value="any") == replace(qb, value="any")
         else:

@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as npt
 from assertpy import assert_that
 from bokeh.plotting import figure
+from numpy import ndarray, floating
 from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
@@ -119,7 +120,7 @@ class ClassificationEvaluator(
         ground_truth: ClassificationGroundTruth,
         model_prediction: ClassificationPrediction,
         model_name: str,
-        sample_weights: Optional[Sequence[float]] = None,
+        sample_weights: Optional[Sequence[float] | ndarray] = None,
     ) -> Evaluation:
         """
         Computes Quantities and generates Figures that are useful for most
@@ -590,7 +591,7 @@ def check_input(
 
 
 def _sample_weights(
-    sample_weights: Optional[Sequence[float]],
+    sample_weights: Optional[Sequence[float] | ndarray],
     simulated_class_distribution: Optional[Sequence[float]],
     y_true: Integers,
 ) -> Optional[np.ndarray]:

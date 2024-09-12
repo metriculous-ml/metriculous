@@ -4,6 +4,7 @@ from typing import Optional, Sequence, Tuple
 
 import numpy as np
 from assertpy import assert_that
+from numpy import floating
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
@@ -17,7 +18,7 @@ def normalized(matrix: np.ndarray) -> np.ndarray:
 
 
 def cross_entropy(
-    target_probas: np.ndarray, pred_probas: np.ndarray, epsilon: float = 1e-15
+    target_probas: np.ndarray, pred_probas: np.ndarray, epsilon: float | floating = 1e-15
 ) -> float:
     """Returns the cross-entropy for probabilistic ground truth labels.
 

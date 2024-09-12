@@ -2,7 +2,7 @@ from typing import Sequence, Tuple, cast
 
 import numpy as np
 from bokeh.embed import file_html
-from bokeh.models import Div, Title
+from bokeh.models import Div, Title, LayoutDOM
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 
@@ -80,7 +80,7 @@ def scatter_plot_circle_size(
     return max(smallest, biggest - slope * num_points)
 
 
-def check_that_all_figures_can_be_rendered(figures: Sequence[figure]) -> None:
+def check_that_all_figures_can_be_rendered(figures: Sequence[LayoutDOM]) -> None:
     """Generates HTML for each figure.
 
     In some cases this reveals issues that might not be noticed if we just instantiated the figures

@@ -107,6 +107,8 @@ def test_a_vs_b_auroc_symmetry() -> None:
         a2b1 = metrics.a_vs_b_auroc(
             target_ints=target_ints, predicted_probas=probas, class_a=2, class_b=1
         )
+        assert isinstance(a1b2, float)
+        assert isinstance(a2b1, float)
         np.testing.assert_allclose(a1b2, a2b1, atol=1e-15)
 
 

@@ -1,6 +1,7 @@
 from typing import Callable, Iterable, Optional, Sequence, Tuple
 
 import numpy as np
+from bokeh.models import LayoutDOM
 from bokeh.plotting import figure
 from sklearn import metrics as sklmetrics
 
@@ -173,9 +174,9 @@ class SegmentationEvaluator(Evaluator):
 
     def _lazy_figures(
         self, model_name: str, y_pred: np.ndarray, y_true: np.ndarray
-    ) -> Sequence[Tuple[str, Callable[[], figure]]]:
+    ) -> Sequence[Tuple[str, Callable[[], LayoutDOM]]]:
 
-        lazy_figures = []
+        lazy_figures: list[Tuple[str, Callable[[], LayoutDOM]]] = []
 
         class_distribution_figure_name = "Class Distribution"
 
