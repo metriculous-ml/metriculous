@@ -4,12 +4,12 @@ from typing import Optional
 
 import pytest
 from bokeh import plotting
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 
 from metriculous import Comparison, Evaluation, Quantity
 
 
-def make_a_bokeh_figure() -> Figure:
+def make_a_bokeh_figure() -> figure:
     p = plotting.figure()
     p.line(x=[0, 1, 5, 6], y=[40, 60, 30, 50])
     return p

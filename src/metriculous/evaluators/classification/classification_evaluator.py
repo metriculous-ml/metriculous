@@ -3,7 +3,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import numpy.testing as npt
 from assertpy import assert_that
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from scipy.stats import entropy
 from sklearn import metrics as sklmetrics
 
@@ -203,9 +203,9 @@ class ClassificationEvaluator(
         data: ClassificationData,
         maybe_sample_weights: Optional[np.ndarray],
         class_names: Sequence[str],
-    ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
+    ) -> Sequence[Tuple[str, Callable[[], figure]]]:
 
-        lazy_figures: List[Tuple[str, Callable[[], Figure]]] = []
+        lazy_figures: List[Tuple[str, Callable[[], figure]]] = []
 
         y_true = data.target.argmaxes
         y_true_one_hot = data.target.argmaxes_one_hot

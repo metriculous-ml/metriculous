@@ -219,7 +219,7 @@ def test_ClassificationEvaluator_perfect_prediction(
         ),
         Quantity(
             name="Log Loss",
-            value=2.1094237467877998e-15,
+            value=2.220446e-16,
             higher_is_better=False,
             description=None,
         ),

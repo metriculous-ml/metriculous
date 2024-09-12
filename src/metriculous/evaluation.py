@@ -6,7 +6,7 @@ Here we do not make any assumptions about the structure of ground truth and pred
 from dataclasses import dataclass, field, replace
 from typing import Callable, Generic, Optional, Sequence, TypeVar, Union
 
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 
 
 @dataclass(frozen=True)
@@ -21,7 +21,7 @@ class Quantity:
 class Evaluation:
     model_name: str
     quantities: Sequence[Quantity] = field(default_factory=list)
-    lazy_figures: Sequence[Callable[[], Figure]] = field(default_factory=list)
+    lazy_figures: Sequence[Callable[[], figure]] = field(default_factory=list)
     primary_metric: Optional[str] = None
 
     def get_by_name(self, quantity_name: str) -> Quantity:
@@ -37,7 +37,7 @@ class Evaluation:
             return None
         return self.get_by_name(self.primary_metric)
 
-    def figures(self) -> Sequence[Figure]:
+    def figures(self) -> Sequence[figure]:
         return [f() for f in self.lazy_figures]
 
     def filtered(

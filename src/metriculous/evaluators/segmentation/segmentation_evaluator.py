@@ -1,7 +1,7 @@
 from typing import Callable, Iterable, Optional, Sequence, Tuple
 
 import numpy as np
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from sklearn import metrics as sklmetrics
 
 from metriculous.evaluation import Evaluation, Evaluator, Quantity
@@ -173,13 +173,13 @@ class SegmentationEvaluator(Evaluator):
 
     def _lazy_figures(
         self, model_name: str, y_pred: np.ndarray, y_true: np.ndarray
-    ) -> Sequence[Tuple[str, Callable[[], Figure]]]:
+    ) -> Sequence[Tuple[str, Callable[[], figure]]]:
 
         lazy_figures = []
 
         class_distribution_figure_name = "Class Distribution"
 
-        def class_distribution_figure() -> Figure:
+        def class_distribution_figure() -> figure:
             figure = _bokeh_output_histogram(
                 y_true=y_true,
                 y_pred=y_pred,

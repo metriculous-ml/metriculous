@@ -3,7 +3,7 @@ from typing import Sequence, Tuple, cast
 import numpy as np
 from bokeh.embed import file_html
 from bokeh.models import Div, Title
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from bokeh.resources import CDN
 
 TOOLS = "pan,box_zoom,wheel_zoom,reset"
@@ -37,7 +37,7 @@ def title_div(title_rows: Sequence[str]) -> Div:
     )
 
 
-def add_title_rows(p: Figure, title_rows: Sequence[str]) -> None:
+def add_title_rows(p: figure, title_rows: Sequence[str]) -> None:
     for title_row in reversed(title_rows):
         p.add_layout(
             Title(text=title_row, text_font_size=FONT_SIZE, align="center"),
@@ -45,7 +45,7 @@ def add_title_rows(p: Figure, title_rows: Sequence[str]) -> None:
         )
 
 
-def apply_default_style(p: Figure) -> None:
+def apply_default_style(p: figure) -> None:
     p.background_fill_color = BACKGROUND_COLOR
     p.grid.grid_line_color = "white"
 
@@ -80,7 +80,7 @@ def scatter_plot_circle_size(
     return max(smallest, biggest - slope * num_points)
 
 
-def check_that_all_figures_can_be_rendered(figures: Sequence[Figure]) -> None:
+def check_that_all_figures_can_be_rendered(figures: Sequence[figure]) -> None:
     """Generates HTML for each figure.
 
     In some cases this reveals issues that might not be noticed if we just instantiated the figures

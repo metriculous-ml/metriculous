@@ -54,9 +54,9 @@ def test_cross_entropy_zero() -> None:
 def test_cross_entropy_certainty_in_targets() -> None:
     target_probas = np.array([[1.0, 0.0], [1.0, 0.0]])
     pred_probas = np.array([[0.6, 0.4], [0.1, 0.9]])
-    eps = 1e-15
+    eps = np.finfo(pred_probas.dtype).eps
     ce = metrics.cross_entropy(target_probas, pred_probas, epsilon=eps)
-    ll = sklmetrics.log_loss(target_probas, pred_probas, eps=eps)
+    ll = sklmetrics.log_loss(target_probas, pred_probas)
     np.testing.assert_allclose(ce, ll)
 
 

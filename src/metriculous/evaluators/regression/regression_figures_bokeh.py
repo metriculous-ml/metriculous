@@ -3,7 +3,7 @@ from typing import Any, Callable, Mapping, Optional, Sequence, Tuple
 import numpy as np
 from bokeh.layouts import column, gridplot
 from bokeh.models import Column, LayoutDOM
-from bokeh.plotting import Figure, figure
+from bokeh.plotting import figure
 
 from metriculous.evaluators.bokeh_utils import (
     DARK_BLUE,
@@ -38,7 +38,7 @@ def _bokeh_scatter_with_histograms(
     y_histogram_envelope_color: Optional[str],
     title_rows: Sequence[str],
     n_bins: int,
-) -> Tuple[LayoutDOM, Figure]:
+) -> Tuple[LayoutDOM, figure]:
     """
     Scatter plot with small histograms attached to the axes.
     """
@@ -47,8 +47,8 @@ def _bokeh_scatter_with_histograms(
     # --- Create the scatter plot ---
     p_scatter = figure(
         tools=TOOLS,
-        plot_width=250,
-        plot_height=250,
+        width=250,
+        height=250,
         min_border=0,
         min_border_left=20,
         sizing_mode="stretch_width",
@@ -81,8 +81,8 @@ def _bokeh_scatter_with_histograms(
 
     # --- Create the horizontal (ground truth) histogram, above the scatter plot ---
     p_hist_x_above = figure(
-        plot_width=p_scatter.plot_width,
-        plot_height=30,
+        width=p_scatter.width,
+        height=30,
         x_range=p_scatter.x_range,
         y_range=hist_range,
         min_border=0,
@@ -104,8 +104,8 @@ def _bokeh_scatter_with_histograms(
 
     # --- Create the vertical (prediction) histogram, to the right of the scatter plot ---
     p_hist_y_right = figure(
-        plot_width=40,
-        plot_height=p_scatter.plot_height,
+        width=40,
+        height=p_scatter.height,
         x_range=hist_range,
         y_range=p_scatter.y_range,
         x_axis_location=None,

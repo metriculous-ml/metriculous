@@ -152,10 +152,10 @@ q3
 # This is to indicate which quantity should be used for model selection.
 
 # %%
-from bokeh.plotting import figure, Figure
+from bokeh.plotting import figure
 
 
-def make_figure(title: str) -> Figure:
+def make_figure(title: str) -> figure:
     p = figure(title=title)
     p.line([0, 1, 2, 3], np.random.random(size=4), line_width=2)
     return p

@@ -4,7 +4,7 @@ from typing import Callable, Sequence
 import numpy as np
 from bokeh import plotting
 from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from sklearn.utils import check_consistent_length, column_or_1d
 
 from metriculous.evaluators.bokeh_utils import (
@@ -23,7 +23,7 @@ def _bokeh_probability_calibration_plot(
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
     # TODO sample_weights: Optional[np.ndarray],
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Probability calibration plot.
 
     Args:
@@ -39,7 +39,7 @@ def _bokeh_probability_calibration_plot(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         assert y_true_binary.shape == y_pred_score.shape
         assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
             {False, True}
@@ -71,8 +71,8 @@ def _bokeh_probability_calibration_plot(
         )
 
         p = plotting.figure(
-            # plot_height=370,
-            # plot_width=350,
+            # height=370,
+            # width=350,
             x_range=(-0.05, 1.05),
             y_range=(-0.05, 1.05),
             tools=TOOLS,
@@ -121,7 +121,7 @@ def _bokeh_probability_calibration_plot(
 
         return p
 
-    return figure
+    return create_figure
 
 
 @dataclass(frozen=True)

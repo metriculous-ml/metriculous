@@ -4,7 +4,7 @@ import numpy as np
 from assertpy import assert_that
 from bokeh import plotting
 from bokeh.models import ColumnDataSource, HoverTool, LinearColorMapper
-from bokeh.plotting import Figure
+from bokeh.plotting import figure
 from sklearn import metrics as sklmetrics
 
 from metriculous.evaluators.bokeh_utils import (
@@ -33,7 +33,7 @@ def _bokeh_output_histogram(
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray] = None,
     x_label_rotation: Union[str, float] = "horizontal",
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Histogram of ground truth and prediction.
 
     Args:
@@ -60,15 +60,15 @@ def _bokeh_output_histogram(
     assert_that(np.shape(y_true)).is_equal_to(np.shape(weights))
     normalize = not np.allclose(weights, 1.0)
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         n = len(class_names)
 
         bins = np.arange(0, n + 1, 1)
 
         p = plotting.figure(
             x_range=class_names,
-            plot_height=350,
-            plot_width=350,
+            height=350,
+            width=350,
             tools=TOOLS,
             toolbar_location=TOOLBAR_LOCATION,
         )
@@ -110,7 +110,7 @@ def _bokeh_output_histogram(
         p.x_range.bounds = (-0.5, 0.5 + len(class_names))
         return p
 
-    return figure
+    return create_figure
 
 
 def _bokeh_confusion_matrix(
@@ -120,7 +120,7 @@ def _bokeh_confusion_matrix(
     title_rows: Sequence[str],
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Confusion matrix heatmap.
 
     Args:
@@ -142,7 +142,7 @@ def _bokeh_confusion_matrix(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         cm = sklmetrics.confusion_matrix(
             y_true, y_pred, labels=list(range(len(class_names)))
         )
@@ -241,7 +241,7 @@ def _bokeh_confusion_matrix(
 
         return p
 
-    return figure
+    return create_figure
 
 
 def _bokeh_confusion_scatter(
@@ -251,7 +251,7 @@ def _bokeh_confusion_scatter(
     title_rows: Sequence[str],
     x_label_rotation: Union[str, float] = "horizontal",
     y_label_rotation: Union[str, float] = "vertical",
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Scatter plot that contains the same information as a confusion matrix.
 
     Args:
@@ -273,15 +273,15 @@ def _bokeh_confusion_scatter(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         if len(y_true) != len(y_pred):
             raise ValueError("y_true and y_pred must have the same length!")
 
         p = plotting.figure(
             x_range=(-0.5, -0.5 + len(class_names)),
             y_range=(-0.5, -0.5 + len(class_names)),
-            plot_height=350,
-            plot_width=350,
+            height=350,
+            width=350,
             tools=TOOLS,
             toolbar_location=TOOLBAR_LOCATION,
             match_aspect=True,
@@ -334,7 +334,7 @@ def _bokeh_confusion_scatter(
 
         return p
 
-    return figure
+    return create_figure
 
 
 def _bokeh_roc_curve(
@@ -342,7 +342,7 @@ def _bokeh_roc_curve(
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Interactive receiver operator characteristic (ROC) curve.
 
     Args:
@@ -360,7 +360,7 @@ def _bokeh_roc_curve(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         assert y_true_binary.shape == y_pred_score.shape
         assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
             {False, True}
@@ -381,8 +381,8 @@ def _bokeh_roc_curve(
         )
 
         p = plotting.figure(
-            plot_height=400,
-            plot_width=350,
+            height=400,
+            width=350,
             tools=TOOLS,
             toolbar_location=TOOLBAR_LOCATION,
             # toolbar_location=None,  # hides entire toolbar
@@ -422,7 +422,7 @@ def _bokeh_roc_curve(
 
         return p
 
-    return figure
+    return create_figure
 
 
 def _bokeh_precision_recall_curve(
@@ -430,7 +430,7 @@ def _bokeh_precision_recall_curve(
     y_pred_score: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """Interactive precision recall curve.
 
     Args:
@@ -448,7 +448,7 @@ def _bokeh_precision_recall_curve(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         assert y_true_binary.shape == y_pred_score.shape
         assert set(y_true_binary).issubset({0, 1}) or set(y_true_binary).issubset(
             {False, True}
@@ -464,8 +464,8 @@ def _bokeh_precision_recall_curve(
         recall = recall[:-1]
 
         p = plotting.figure(
-            plot_height=400,
-            plot_width=350,
+            height=400,
+            width=350,
             x_range=(-0.05, 1.05),
             y_range=(-0.05, 1.05),
             tools=TOOLS,
@@ -499,7 +499,7 @@ def _bokeh_precision_recall_curve(
 
         return p
 
-    return figure
+    return create_figure
 
 
 def _bokeh_automation_rate_analysis(
@@ -507,7 +507,7 @@ def _bokeh_automation_rate_analysis(
     y_pred_proba: np.ndarray,
     title_rows: Sequence[str],
     sample_weights: Optional[np.ndarray],
-) -> Callable[[], Figure]:
+) -> Callable[[], figure]:
     """
     Plots various quantities over automation rate, where a single probability threshold
     is used for all classes to decide if we are confident enough to automate the
@@ -528,7 +528,7 @@ def _bokeh_automation_rate_analysis(
 
     """
 
-    def figure() -> Figure:
+    def create_figure() -> figure:
         # ----- Check input -----
         assert y_target_one_hot.ndim == 2
         assert y_pred_proba.ndim == 2
@@ -572,8 +572,8 @@ def _bokeh_automation_rate_analysis(
 
         # ----- Bokeh plot -----
         p = plotting.figure(
-            plot_height=400,
-            plot_width=350,
+            height=400,
+            width=350,
             x_range=(-0.05, 1.05),
             y_range=(-0.05, 1.05),
             tools=TOOLS,
@@ -634,7 +634,7 @@ def _bokeh_automation_rate_analysis(
 
         return p
 
-    return figure
+    return create_figure
 
 
 def _faster_accuracy(
