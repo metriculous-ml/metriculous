@@ -1,4 +1,5 @@
 """Module defining generic metric functions."""
+
 from typing import Optional, Sequence, Tuple
 
 import numpy as np

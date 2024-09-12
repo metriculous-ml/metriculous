@@ -21,16 +21,18 @@ def make_a_comparison(
     evaluations = [
         Evaluation(
             model_name=f"Model_{i}",
-            quantities=[]
-            if not with_quantities
-            else [
-                Quantity("Accuracy", value=1.0 / (i + 1), higher_is_better=True),
-                Quantity("Error", value=1.0 / (i + 1), higher_is_better=False),
-                Quantity("Mean", value=1.0 / (i + 1), higher_is_better=None),
-            ],
-            lazy_figures=[]
-            if not with_figures
-            else [make_a_bokeh_figure, make_a_bokeh_figure],
+            quantities=(
+                []
+                if not with_quantities
+                else [
+                    Quantity("Accuracy", value=1.0 / (i + 1), higher_is_better=True),
+                    Quantity("Error", value=1.0 / (i + 1), higher_is_better=False),
+                    Quantity("Mean", value=1.0 / (i + 1), higher_is_better=None),
+                ]
+            ),
+            lazy_figures=(
+                [] if not with_figures else [make_a_bokeh_figure, make_a_bokeh_figure]
+            ),
         )
         for i in range(n_models)
     ]
@@ -72,7 +74,7 @@ class TestComparison:
                 assert q.name in html_in_file
 
     def test_display_then_html_then_save_html_smoke_test(self) -> None:
-        """ Checks that subsequent calls do not interfere with each other. """
+        """Checks that subsequent calls do not interfere with each other."""
         comparison = make_a_comparison(with_quantities=True, with_figures=True)
         comparison.display()
         comparison.html()

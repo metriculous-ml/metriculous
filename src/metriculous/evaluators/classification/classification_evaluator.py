@@ -148,11 +148,11 @@ class ClassificationEvaluator(
         # === Preparations =============================================================
         data = check_input(ground_truth=ground_truth, model_prediction=model_prediction)
 
-        class_names: Sequence[
-            str
-        ] = self.class_names if self.class_names is not None else [
-            "class_{}".format(i) for i in range(data.n_classes)
-        ]
+        class_names: Sequence[str] = (
+            self.class_names
+            if self.class_names is not None
+            else ["class_{}".format(i) for i in range(data.n_classes)]
+        )
         assert len(class_names) == data.n_classes
 
         if self.simulated_class_distribution is not None:

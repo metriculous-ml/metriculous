@@ -81,7 +81,7 @@ def scatter_plot_circle_size(
 
 
 def check_that_all_figures_can_be_rendered(figures: Sequence[Figure]) -> None:
-    """ Generates HTML for each figure.
+    """Generates HTML for each figure.
 
     In some cases this reveals issues that might not be noticed if we just instantiated the figures
     without showing them or generating their HTML representations.

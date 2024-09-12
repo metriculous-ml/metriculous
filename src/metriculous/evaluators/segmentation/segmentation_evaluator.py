@@ -14,7 +14,6 @@ from metriculous.evaluators.segmentation.segmentation_figures_bokeh import (
 
 
 class SegmentationEvaluator(Evaluator):
-
     """
     Implementation of the Segmentation Evaluator which should work well for most
     image segmentation problems.
@@ -104,7 +103,6 @@ class SegmentationEvaluator(Evaluator):
         model_name: str,
         sample_weights: Optional[Iterable[float]] = None,
     ) -> Evaluation:
-
         """
 
         Args:

@@ -133,7 +133,7 @@ class TestRegressionEvaluator:
             else maybe_sample_weights
         )
 
-        r2_numerator = np.sum(residual ** 2 * sample_weights)
+        r2_numerator = np.sum(residual**2 * sample_weights)
 
         r2_denominator = np.sum(
             (ground_truth - np.average(ground_truth, weights=maybe_sample_weights)) ** 2
@@ -159,13 +159,13 @@ class TestRegressionEvaluator:
             ),
             Quantity(
                 name="MSE (Mean Squared Error)",
-                value=np.average(residual ** 2, weights=maybe_sample_weights),
+                value=np.average(residual**2, weights=maybe_sample_weights),
                 higher_is_better=False,
             ),
             Quantity(
                 name="RMSE (Root Mean Squared Error)",
                 value=float(
-                    np.sqrt(np.average(residual ** 2, weights=maybe_sample_weights))
+                    np.sqrt(np.average(residual**2, weights=maybe_sample_weights))
                 ),
                 higher_is_better=False,
             ),
@@ -224,7 +224,7 @@ class TestRegressionEvaluator:
 
 
 def check_any_evaluation(evaluation: Evaluation) -> None:
-    """ Performs basic checks that should pass for any `Evaluation` object. """
+    """Performs basic checks that should pass for any `Evaluation` object."""
     for quantity in evaluation.quantities:
         assert isinstance(quantity, Quantity)
         assert isinstance(quantity.value, (float, str, int))

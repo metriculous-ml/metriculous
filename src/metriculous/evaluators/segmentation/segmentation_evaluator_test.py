@@ -87,7 +87,6 @@ def test_SegmentationEvaluator_perfect_prediction(classes: Sequence[str]) -> Non
 def test_SegmentationEvaluator_inconsistent_class_names(
     num_classes: int, class_names: Sequence[str]
 ) -> None:
-
     """
     Tests if the __init__ method of SegmentationEvaluator raises an error if the
     length of the class_names list is not equal to num_classes
@@ -102,7 +101,6 @@ def test_SegmentationEvaluator_inconsistent_class_names(
 def test_SegmentationEvaluator_inconsistent_class_weights(
     num_classes: int, class_weights: Sequence[float]
 ) -> None:
-
     """
     Tests if the __init__ method of SegmentationEvaluator raises an error if the
     length of the class_weights list is not equal to num_classes

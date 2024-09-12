@@ -2,6 +2,7 @@
 This module contains data types and interfaces that are used throughout the library.
 Here we do not make any assumptions about the structure of ground truth and predictions.
 """
+
 from dataclasses import dataclass, field, replace
 from typing import Callable, Generic, Optional, Sequence, TypeVar, Union
 

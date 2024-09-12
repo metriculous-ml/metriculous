@@ -200,9 +200,11 @@ def _get_and_supplement_model_names(
     model_evaluations: Sequence[Evaluation],
 ) -> Sequence[str]:
     return [
-        evaluation.model_name
-        if evaluation.model_name is not None
-        else f"model_{i_model}"
+        (
+            evaluation.model_name
+            if evaluation.model_name is not None
+            else f"model_{i_model}"
+        )
         for i_model, evaluation in enumerate(model_evaluations)
     ]
 
@@ -332,7 +334,9 @@ def _html_quantity_comparison_table(model_evaluations: Sequence[Evaluation]) -> 
         if highlight_fn is None:
             return df_styled.to_html()
         else:
-            return df_styled.apply(highlight_fn, axis=1, subset=df.columns[1:]).to_html()
+            return df_styled.apply(
+                highlight_fn, axis=1, subset=df.columns[1:]
+            ).to_html()
 
     html_output = ""
 
@@ -386,7 +390,8 @@ def _html_figure_table(
 
 
 def _figure_rows(
-    model_evaluations: Sequence[Evaluation], include_spacer: Optional[bool],
+    model_evaluations: Sequence[Evaluation],
+    include_spacer: Optional[bool],
 ) -> Sequence[Row]:
     # TODO check figure consistency
     rows = []

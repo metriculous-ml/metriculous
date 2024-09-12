@@ -23,7 +23,9 @@ def test_bokeh_confusion_matrix__no_crash_when_class_is_never_predicted() -> Non
     _ = file_html(figure, resources=CDN)
 
 
-def test_bokeh_confusion_matrix__no_crash_when_class_is_never_predicted_and_not_in_y_true() -> None:
+def test_bokeh_confusion_matrix__no_crash_when_class_is_never_predicted_and_not_in_y_true() -> (
+    None
+):
     lazy_figure = _bokeh_confusion_matrix(
         y_true=np.asarray([0, 1, 1]),  # no 2
         y_pred=np.asarray([1, 1, 1]),  # no 2

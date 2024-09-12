@@ -12,7 +12,9 @@ class RegressionData:
     predictions: np.ndarray
 
     def __init__(
-        self, targets: Floats, predictions: Floats,
+        self,
+        targets: Floats,
+        predictions: Floats,
     ):
         self.targets = np.asarray(targets)
         self.predictions = np.asarray(predictions)
