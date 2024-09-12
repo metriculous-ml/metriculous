@@ -30,20 +30,20 @@ include = ["LICENSE"]
 
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 numpy = ">=1.16"
 scikit-learn = ">=0.21.2"
 assertpy = ">=0.14.0"
 pandas = ">=1.4.0"
-bokeh = ">=2.1.1"
+bokeh = "^3.5.2"
 jupyter = "^1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
 jupytext = "^1.0"
-mypy = "^0.782"
+mypy = "1.11.2"
 isort = "^5.0.9"
-black = "^19.10b0"
+black = "24.8.0"
 flake8 = "^3.8.3"
 numpy-stubs = {git = "https://github.com/numpy/numpy-stubs.git"}
 jupyterlab = "^2.2.2"
