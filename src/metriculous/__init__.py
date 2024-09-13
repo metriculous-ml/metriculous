@@ -77,6 +77,7 @@ def compare_regressors(
     filter_figures: Optional[Callable[[str], bool]] = None,
     n_histogram_bins: int = DEFAULT_N_HISTOGRAM_BINS,
     primary_metric: Optional[str] = None,
+    sample_weights: Optional[Floats] = None,
 ) -> Comparison:
     return compare(
         evaluator=RegressionEvaluator(
@@ -88,5 +89,5 @@ def compare_regressors(
         ground_truth=ground_truth,
         model_predictions=model_predictions,
         model_names=model_names,
-        sample_weights=None,  # sample_weights are currently not yet supported
+        sample_weights=sample_weights,
     )
